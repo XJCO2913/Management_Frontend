@@ -1,17 +1,20 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
+import { HelmetProvider } from 'react-helmet-async' // 导入 HelmetProvider
 import { RouterProvider, createBrowserRouter } from 'react-router-dom'
-import Login from './pages/login'
+import UserListPage from './pages/list'
 
 const router = createBrowserRouter([
     {
-        path: "/",
-        element: <Login />
+        path: "/users",
+        element: <UserListPage />,
     }
 ])
 
 ReactDOM.createRoot(document.getElementById('root')).render(
     <React.StrictMode>
-        <RouterProvider router={router} />
+        <HelmetProvider>
+            <RouterProvider router={router} />
+        </HelmetProvider>
     </React.StrictMode>,
 )
