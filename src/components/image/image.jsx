@@ -138,4 +138,5 @@ Image.propTypes = {
   placeholder: PropTypes.element,
 };
 
+Image.displayName = 'Image';
 export default Image;

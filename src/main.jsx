@@ -1,20 +1,21 @@
-import React from 'react'
-import ReactDOM from 'react-dom/client'
-import { HelmetProvider } from 'react-helmet-async' // 导入 HelmetProvider
-import { RouterProvider, createBrowserRouter } from 'react-router-dom'
-import UserListPage from './pages/list'
+import { Suspense } from 'react';
+import ReactDOM from 'react-dom/client';
+import { BrowserRouter } from 'react-router-dom';
+import { HelmetProvider } from 'react-helmet-async';
 
-const router = createBrowserRouter([
-    {
-        path: "/users",
-        element: <UserListPage />,
-    }
-])
+import App from './app';
 
-ReactDOM.createRoot(document.getElementById('root')).render(
-    <React.StrictMode>
-        <HelmetProvider>
-            <RouterProvider router={router} />
-        </HelmetProvider>
-    </React.StrictMode>,
-)
+// ----------------------------------------------------------------------
+
+const root = ReactDOM.createRoot(document.getElementById('root'));
+
+root.render(
+  <HelmetProvider>
+    <BrowserRouter>
+      <Suspense fallback={<div>Loading...</div>}>
+        <App />
+      </Suspense>
+
+    </BrowserRouter>
+  </HelmetProvider>
+);
