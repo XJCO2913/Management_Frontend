@@ -1,34 +1,5 @@
-import { lazy, Suspense } from 'react';
-import { Outlet } from 'react-router-dom';
-
-import { AuthGuard } from 'src/auth/guard';
-import DashboardLayout from 'src/layouts/dashboard';
-
-import { LoadingScreen } from 'src/components/loading-screen';
+import { lazy } from 'react';
 
 // ----------------------------------------------------------------------
-const UserListPage = lazy(() => import('src/pages/dashboard/user/list'));
-// ----------------------------------------------------------------------
 
-export const dashboardRoutes = [
-  {
-    path: 'dashboard',
-    element: (
-      <AuthGuard>
-        <DashboardLayout>
-          <Suspense fallback={<LoadingScreen />}>
-            <Outlet />
-          </Suspense>
-        </DashboardLayout>
-      </AuthGuard>
-    ),
-    children: [
-      {
-        path: 'user',
-        children: [
-          { path: 'list', element: <UserListPage /> },
-        ],
-      },
-    ],
-  },
-];
+export const DashboardPage = lazy(() => import('src/pages/dashboard'));

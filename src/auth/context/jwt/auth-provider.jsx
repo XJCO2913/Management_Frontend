@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types';
 import { useMemo, useEffect, useReducer, useCallback } from 'react';
 
-import axios, { endpoints } from 'src/utils/axios';
+import axios from 'src/utils/axios';
 
 import { AuthContext } from './auth-context';
 import { setSession, isValidToken } from './utils';
@@ -98,54 +98,54 @@ export function AuthProvider({ children }) {
   }, [initialize]);
 
   // LOGIN
-  const login = useCallback(async (email, password) => {
-    const data = {
-      email,
-      password,
-    };
+  // const login = useCallback(async (email, password) => {
+  //   const data = {
+  //     email,
+  //     password,
+  //   };
 
-    const response = await axios.post(endpoints.auth.login, data);
+  //   const response = await axios.post(endpoints.auth.login, data);
 
-    const { accessToken, user } = response.data;
+  //   const { accessToken, user } = response.data;
 
-    setSession(accessToken);
+  //   setSession(accessToken);
 
-    dispatch({
-      type: 'LOGIN',
-      payload: {
-        user: {
-          ...user,
-          accessToken,
-        },
-      },
-    });
-  }, []);
+  //   dispatch({
+  //     type: 'LOGIN',
+  //     payload: {
+  //       user: {
+  //         ...user,
+  //         accessToken,
+  //       },
+  //     },
+  //   });
+  // }, []);
 
   // REGISTER
-  const register = useCallback(async (email, password, firstName, lastName) => {
-    const data = {
-      email,
-      password,
-      firstName,
-      lastName,
-    };
+  // const register = useCallback(async (email, password, firstName, lastName) => {
+  //   const data = {
+  //     email,
+  //     password,
+  //     firstName,
+  //     lastName,
+  //   };
 
-    const response = await axios.post(endpoints.auth.register, data);
+  //   const response = await axios.post(endpoints.auth.register, data);
 
-    const { accessToken, user } = response.data;
+  //   const { accessToken, user } = response.data;
 
-    sessionStorage.setItem(STORAGE_KEY, accessToken);
+  //   sessionStorage.setItem(STORAGE_KEY, accessToken);
 
-    dispatch({
-      type: 'REGISTER',
-      payload: {
-        user: {
-          ...user,
-          accessToken,
-        },
-      },
-    });
-  }, []);
+  //   dispatch({
+  //     type: 'REGISTER',
+  //     payload: {
+  //       user: {
+  //         ...user,
+  //         accessToken,
+  //       },
+  //     },
+  //   });
+  // }, []);
 
   // LOGOUT
   const logout = useCallback(async () => {
@@ -169,11 +169,9 @@ export function AuthProvider({ children }) {
       authenticated: status === 'authenticated',
       unauthenticated: status === 'unauthenticated',
       //
-      login,
-      register,
       logout,
     }),
-    [login, logout, register, state.user, status]
+    [, logout, state.user, status]
   );
 
   return <AuthContext.Provider value={memoizedValue}>{children}</AuthContext.Provider>;

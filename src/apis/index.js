@@ -18,7 +18,6 @@ export const GAODE_API = {
 // 获取所有用户信息
 export const fetchAllUsers = async () => {
     try {
-        // 使用HOST_API常量，无需添加用户ID
         const url = `${HOST_API}users`;
         const response = await axios.get(url);
         return response.data; // 这将返回所有用户的信息列表
