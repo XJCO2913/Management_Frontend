@@ -10,12 +10,12 @@ import App from './app';
 const root = ReactDOM.createRoot(document.getElementById('root'));
 
 root.render(
-  <HelmetProvider>
-    <BrowserRouter>
-      <Suspense fallback={<div>Loading...</div>}>
-        <App />
-      </Suspense>
-
-    </BrowserRouter>
-  </HelmetProvider>
-);
+    <HelmetProvider>
+      <BrowserRouter>
+        <Suspense>
+          <App />
+        </Suspense>
+      </BrowserRouter>
+    </HelmetProvider>
+  );
+  

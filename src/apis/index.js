@@ -3,6 +3,7 @@
 
 // Base URL
 export const HOST_API = 'http://43.136.232.116/'
+import axios from 'axios';
 
 // ----------------------------------------------------------------------
 
@@ -14,13 +15,15 @@ export const GAODE_API = {
 
 // ----------------------------------------------------------------------
 
-// 获取用户信息
-export const fetchUser = async (userId) => {
+// 获取所有用户信息
+export const fetchAllUsers = async () => {
     try {
-        const response = await axios.get(`/users/${userId}`);
-        return response.data;
+        // 使用HOST_API常量，无需添加用户ID
+        const url = `${HOST_API}users`;
+        const response = await axios.get(url);
+        return response.data; // 这将返回所有用户的信息列表
     } catch (error) {
-        console.error('Error fetching user:', error);
+        console.error('Error fetching all users:', error);
         throw error;
     }
 };

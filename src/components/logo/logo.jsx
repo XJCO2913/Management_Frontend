@@ -92,4 +92,5 @@ Logo.propTypes = {
   sx: PropTypes.object,
 };
 
+Logo.displayName = 'Logo';
 export default Logo;

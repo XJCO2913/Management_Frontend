@@ -1,4 +1,3 @@
-/* eslint-disable perfectionist/sort-imports */
 import 'src/global.css';
 
 // i18n
@@ -6,7 +5,7 @@ import 'src/locales/i18n';
 
 // ----------------------------------------------------------------------
 
-//import Router from 'src/routes/sections';
+import Router from 'src/routes/sections';
 
 import ThemeProvider from 'src/theme';
 
@@ -62,14 +61,14 @@ export default function App() {
               <SnackbarProvider>
                 
                   <SettingsDrawer />
-                  
+                  <Router />
 
                
               </SnackbarProvider>
             </MotionLazy>
           </ThemeProvider>
         </SettingsProvider>
-      </LocalizationProvider>
+      </LocalizationProvider>x
     </AuthProvider>
   );
 }
