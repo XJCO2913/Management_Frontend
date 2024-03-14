@@ -1,5 +1,5 @@
 import isEqual from 'lodash/isEqual';
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 
 import Tab from '@mui/material/Tab';
 import Tabs from '@mui/material/Tabs';
@@ -18,8 +18,6 @@ import { useRouter } from 'src/routes/hooks';
 import { RouterLink } from 'src/routes/components';
 
 import { useBoolean } from 'src/hooks/use-boolean';
-
-import { _roles, _userList, USER_STATUS_OPTIONS } from 'src/_mock';
 
 import Label from 'src/components/label';
 import Iconify from 'src/components/iconify';
@@ -42,24 +40,22 @@ import {
 import UserTableRow from '../user-table-row';
 import UserTableToolbar from '../user-table-toolbar';
 import UserTableFiltersResult from '../user-table-filters-result';
-
+import { fetchAllUsers } from 'src/apis';
 // ----------------------------------------------------------------------
 
-const STATUS_OPTIONS = [{ value: 'all', label: 'All' }, ...USER_STATUS_OPTIONS];
+const STATUS_OPTIONS = [{ value: 'all', label: 'All' }];
 
 const TABLE_HEAD = [
-  { id: 'name', label: 'Name' },
-  { id: 'phoneNumber', label: 'Phone Number', width: 180 },
-  { id: 'company', label: 'Company', width: 220 },
-  { id: 'role', label: 'Role', width: 180 },
-  { id: 'status', label: 'Status', width: 100 },
+  { id: 'checkbox', label: ''},
+  { id: 'username', label: 'Username' },
+  { id: 'gender', label: 'Gender' },
+  { id: 'birthday', label: 'Birthday' },
+  { id: 'region', label: 'Region' },
   { id: '', width: 88 },
 ];
 
 const defaultFilters = {
-  name: '',
-  role: [],
-  status: 'all',
+  username: '',
 };
 
 // ----------------------------------------------------------------------
@@ -75,13 +71,12 @@ export default function UserListView() {
 
   const confirm = useBoolean();
 
-  const [tableData, setTableData] = useState(_userList);
+  const [userData, setUserData] = useState([]);
 
   const [filters, setFilters] = useState(defaultFilters);
 
   const dataFiltered = applyFilter({
-    inputData: tableData,
-    comparator: getComparator(table.order, table.orderBy),
+    inputData: userData,
     filters,
   });
 
@@ -92,16 +87,16 @@ export default function UserListView() {
 
   const denseHeight = table.dense ? 56 : 56 + 20;
 
-  const canReset = !isEqual(defaultFilters, filters);
+  const canReset = !!filters.username;
 
-  const notFound = (!dataFiltered.length && canReset) || !dataFiltered.length;
+  const notFound = !dataFiltered.length;
 
   const handleFilters = useCallback(
-    (name, value) => {
+    (username, value) => {
       table.onResetPage();
       setFilters((prevState) => ({
         ...prevState,
-        [name]: value,
+        [username]: value,
       }));
     },
     [table]
@@ -112,45 +107,47 @@ export default function UserListView() {
   }, []);
 
   const handleDeleteRow = useCallback(
-    (id) => {
-      const deleteRow = tableData.filter((row) => row.id !== id);
+    (userId) => {
+      const deleteRow = userData.filter((user) => user.userId !== userId);
 
       enqueueSnackbar('Delete success!');
 
-      setTableData(deleteRow);
+      setUserData(deleteRow);
 
       table.onUpdatePageDeleteRow(dataInPage.length);
     },
-    [dataInPage.length, enqueueSnackbar, table, tableData]
+    [dataInPage.length, enqueueSnackbar, table, userData]
   );
 
-  const handleDeleteRows = useCallback(() => {
-    const deleteRows = tableData.filter((row) => !table.selected.includes(row.id));
-
-    enqueueSnackbar('Delete success!');
-
-    setTableData(deleteRows);
-
-    table.onUpdatePageDeleteRows({
-      totalRowsInPage: dataInPage.length,
-      totalRowsFiltered: dataFiltered.length,
-    });
-  }, [dataFiltered.length, dataInPage.length, enqueueSnackbar, table, tableData]);
-
   const handleEditRow = useCallback(
-    (id) => {
-      router.push(paths.dashboard.user.edit(id));
+    (userId) => {
+      router.push(paths.dashboard.user.edit(userId));
     },
     [router]
   );
 
-  const handleFilterStatus = useCallback(
-    (event, newValue) => {
-      handleFilters('status', newValue);
-    },
-    [handleFilters]
-  );
-
+  
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MTA0MzEzNzIsImlzQWRtaW4iOnRydWUsInVzZXJJRCI6IjEyMzEyMzEyMyJ9._iVj7hDWgcgOLuh6xtcXgO1wr05lmgSSVuXbNgGEJ0M';
+        const response = await fetchAllUsers(token);
+        console.log('API Response:', response);
+        if (response.status_code === 0) {
+          console.log('Data received:', response.Data);
+          setUserData(response.Data);
+        } else {
+          throw new Error(response.status_msg);
+        }
+      } catch (error) {
+        console.error('Error fetching user data:', error);
+        enqueueSnackbar('An error occurred while fetching user data', { variant: 'error' });
+      }
+    };
+  
+    fetchUserData();
+  }, [enqueueSnackbar]);
+  
   return (
     <>
       <Container maxWidth={settings.themeStretch ? false : 'lg'}>
@@ -178,8 +175,7 @@ export default function UserListView() {
 
         <Card>
           <Tabs
-            value={filters.status}
-            onChange={handleFilterStatus}
+            value="all"
             sx={{
               px: 2.5,
               boxShadow: (theme) => `inset 0 -2px 0 0 ${alpha(theme.palette.grey[500], 0.08)}`,
@@ -191,23 +187,6 @@ export default function UserListView() {
                 iconPosition="end"
                 value={tab.value}
                 label={tab.label}
-                icon={
-                  <Label
-                    variant={
-                      ((tab.value === 'all' || tab.value === filters.status) && 'filled') || 'soft'
-                    }
-                    color={
-                      (tab.value === 'active' && 'success') ||
-                      (tab.value === 'pending' && 'warning') ||
-                      (tab.value === 'banned' && 'error') ||
-                      'default'
-                    }
-                  >
-                    {['active', 'pending', 'banned', 'rejected'].includes(tab.value)
-                      ? tableData.filter((user) => user.status === tab.value).length
-                      : tableData.length}
-                  </Label>
-                }
               />
             ))}
           </Tabs>
@@ -215,17 +194,13 @@ export default function UserListView() {
           <UserTableToolbar
             filters={filters}
             onFilters={handleFilters}
-            //
-            roleOptions={_roles}
           />
 
           {canReset && (
             <UserTableFiltersResult
               filters={filters}
               onFilters={handleFilters}
-              //
               onResetFilters={handleResetFilters}
-              //
               results={dataFiltered.length}
               sx={{ p: 2.5, pt: 0 }}
             />
@@ -239,7 +214,7 @@ export default function UserListView() {
               onSelectAllRows={(checked) =>
                 table.onSelectAllRows(
                   checked,
-                  dataFiltered.map((row) => row.id)
+                  dataFiltered.map((user) => user.userId)
                 )
               }
               action={
@@ -254,18 +229,8 @@ export default function UserListView() {
             <Scrollbar>
               <Table size={table.dense ? 'small' : 'medium'} sx={{ minWidth: 960 }}>
                 <TableHeadCustom
-                  order={table.order}
-                  orderBy={table.orderBy}
                   headLabel={TABLE_HEAD}
                   rowCount={dataFiltered.length}
-                  numSelected={table.selected.length}
-                  onSort={table.onSort}
-                  onSelectAllRows={(checked) =>
-                    table.onSelectAllRows(
-                      checked,
-                      dataFiltered.map((row) => row.id)
-                    )
-                  }
                 />
 
                 <TableBody>
@@ -274,14 +239,12 @@ export default function UserListView() {
                       table.page * table.rowsPerPage,
                       table.page * table.rowsPerPage + table.rowsPerPage
                     )
-                    .map((row) => (
+                    .map((user) => (
                       <UserTableRow
-                        key={row.id}
-                        row={row}
-                        selected={table.selected.includes(row.id)}
-                        onSelectRow={() => table.onSelectRow(row.id)}
-                        onDeleteRow={() => handleDeleteRow(row.id)}
-                        onEditRow={() => handleEditRow(row.id)}
+                        key={user.userId}
+                        row={user}
+                        onDeleteRow={() => handleDeleteRow(user.userId)}
+                        onEditRow={() => handleEditRow(user.userId)}
                       />
                     ))}
 
@@ -302,7 +265,6 @@ export default function UserListView() {
             rowsPerPage={table.rowsPerPage}
             onPageChange={table.onChangePage}
             onRowsPerPageChange={table.onChangeRowsPerPage}
-            //
             dense={table.dense}
             onChangeDense={table.onChangeDense}
           />
@@ -323,7 +285,6 @@ export default function UserListView() {
             variant="contained"
             color="error"
             onClick={() => {
-              handleDeleteRows();
               confirm.onFalse();
             }}
           >
@@ -337,32 +298,16 @@ export default function UserListView() {
 
 // ----------------------------------------------------------------------
 
-function applyFilter({ inputData, comparator, filters }) {
-  const { name, status, role } = filters;
+function applyFilter({ inputData, filters }) {
+  const { username } = filters;
 
-  const stabilizedThis = inputData.map((el, index) => [el, index]);
+  let filteredData = inputData;
 
-  stabilizedThis.sort((a, b) => {
-    const order = comparator(a[0], b[0]);
-    if (order !== 0) return order;
-    return a[1] - b[1];
-  });
-
-  inputData = stabilizedThis.map((el) => el[0]);
-
-  if (name) {
-    inputData = inputData.filter(
-      (user) => user.name.toLowerCase().indexOf(name.toLowerCase()) !== -1
+  if (username) {
+    filteredData = inputData.filter(
+      (user) => user.username.toLowerCase().indexOf(username.toLowerCase()) !== -1
     );
   }
 
-  if (status !== 'all') {
-    inputData = inputData.filter((user) => user.status === status);
-  }
-
-  if (role.length) {
-    inputData = inputData.filter((user) => role.includes(user.role));
-  }
-
-  return inputData;
+  return filteredData || [];
 }

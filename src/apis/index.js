@@ -2,25 +2,25 @@
 // ----------------------------------------------------------------------
 
 // Base URL
-export const HOST_API = 'http://43.136.232.116/'
+export const HOST_API = 'http://43.136.232.116:5000/test';
 import axios from 'axios';
 
-// ----------------------------------------------------------------------
-
-export const GAODE_API = {
-    apiKey: '03eceb9420e057a98616285039c15367',
-    apiAdmin: 'https://restapi.amap.com/v3/config/district',
-    apiIP: 'https://restapi.amap.com/v3/ip?key='
-};
 
 // ----------------------------------------------------------------------
 
 // 获取所有用户信息
-export const fetchAllUsers = async () => {
+export const fetchAllUsers = async (token) => {
     try {
-        const url = `${HOST_API}users`;
-        const response = await axios.get(url);
-        return response.data; // 这将返回所有用户的信息列表
+        const url = `${HOST_API}/users`;
+        const response = await fetch(url, {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        });
+        if (!response.ok) {
+            throw new Error('Failed to fetch all users');
+        }
+        return await response.json();
     } catch (error) {
         console.error('Error fetching all users:', error);
         throw error;

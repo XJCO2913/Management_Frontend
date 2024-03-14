@@ -12,7 +12,6 @@ import ListItemText from '@mui/material/ListItemText';
 
 import { useBoolean } from 'src/hooks/use-boolean';
 
-import Label from 'src/components/label';
 import Iconify from 'src/components/iconify';
 import { ConfirmDialog } from 'src/components/custom-dialog';
 import CustomPopover, { usePopover } from 'src/components/custom-popover';
@@ -22,7 +21,12 @@ import UserQuickEditForm from './user-quick-edit-form';
 // ----------------------------------------------------------------------
 
 export default function UserTableRow({ row, selected, onEditRow, onSelectRow, onDeleteRow }) {
-  const { name, avatarUrl, company, role, status, email, phoneNumber } = row;
+  if (!row) {
+    return null; 
+  }
+  // console.log(row)
+
+  const { username, avatarUrl, gender, birthday, region, membershipTime } = row;
 
   const confirm = useBoolean();
 
@@ -37,12 +41,12 @@ export default function UserTableRow({ row, selected, onEditRow, onSelectRow, on
           <Checkbox checked={selected} onClick={onSelectRow} />
         </TableCell>
 
-        <TableCell sx={{ display: 'flex', alignItems: 'center' }}>
-          <Avatar alt={name} src={avatarUrl} sx={{ mr: 2 }} />
+        <TableCell sx={{ display: 'flex', alignItems: 'center'}}>
+          <Avatar alt={username} src={avatarUrl} sx={{ mr: 2 }} />
 
           <ListItemText
-            primary={name}
-            secondary={email}
+            primary={username}
+            secondary={`Member since ${new Date(membershipTime * 1000).toLocaleDateString()}`}
             primaryTypographyProps={{ typography: 'body2' }}
             secondaryTypographyProps={{
               component: 'span',
@@ -51,25 +55,9 @@ export default function UserTableRow({ row, selected, onEditRow, onSelectRow, on
           />
         </TableCell>
 
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>{phoneNumber}</TableCell>
-
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>{company}</TableCell>
-
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>{role}</TableCell>
-
-        <TableCell>
-          <Label
-            variant="soft"
-            color={
-              (status === 'active' && 'success') ||
-              (status === 'pending' && 'warning') ||
-              (status === 'banned' && 'error') ||
-              'default'
-            }
-          >
-            {status}
-          </Label>
-        </TableCell>
+        <TableCell sx={{ whiteSpace: 'nowrap' }}>{gender === 1 ? 'Female' : 'Male'}</TableCell>
+        <TableCell sx={{ whiteSpace: 'nowrap' }}>{!isNaN(Date.parse(birthday)) ? new Date(birthday).toLocaleDateString() : 'Secrecy'}</TableCell>
+        <TableCell sx={{ whiteSpace: 'nowrap' }}>{region}</TableCell>
 
         <TableCell align="right" sx={{ px: 1, whiteSpace: 'nowrap' }}>
           <Tooltip title="Quick Edit" placement="top" arrow>

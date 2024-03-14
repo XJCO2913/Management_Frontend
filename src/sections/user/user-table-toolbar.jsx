@@ -27,7 +27,7 @@ export default function UserTableToolbar({
 
   const handleFilterName = useCallback(
     (event) => {
-      onFilters('name', event.target.value);
+      onFilters('username', event.target.value);
     },
     [onFilters]
   );
@@ -69,20 +69,21 @@ export default function UserTableToolbar({
             value={filters.role}
             onChange={handleFilterRole}
             input={<OutlinedInput label="Role" />}
-            renderValue={(selected) => selected.map((value) => value).join(', ')}
+            renderValue={(selected) => selected?.map((value) => value)?.join(', ')} // 使用可选链操作符安全地访问roleOptions
             MenuProps={{
               PaperProps: {
                 sx: { maxHeight: 240 },
               },
             }}
           >
-            {roleOptions.map((option) => (
+            {roleOptions?.map((option) => ( // 使用可选链操作符安全地访问roleOptions
               <MenuItem key={option} value={option}>
                 <Checkbox disableRipple size="small" checked={filters.role.includes(option)} />
                 {option}
               </MenuItem>
             ))}
           </Select>
+
         </FormControl>
 
         <Stack direction="row" alignItems="center" spacing={2} flexGrow={1} sx={{ width: 1 }}>
