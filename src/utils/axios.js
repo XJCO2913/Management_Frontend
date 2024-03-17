@@ -4,7 +4,7 @@ import { HOST_API } from 'src/apis/index';
 // ----------------------------------------------------------------------
 
 // Can be used to send various requests get post delete
-const axiosInstance = axios.create({ baseURL: HOST_API });
+export const axiosInstance = axios.create({ baseURL: HOST_API });
 
 axiosInstance.interceptors.response.use(
   (res) => res,

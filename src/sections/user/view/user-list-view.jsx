@@ -12,6 +12,7 @@ import Container from '@mui/material/Container';
 import TableBody from '@mui/material/TableBody';
 import IconButton from '@mui/material/IconButton';
 import TableContainer from '@mui/material/TableContainer';
+import DeleteIcon from '@mui/icons-material/Delete';
 
 import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hooks';
@@ -40,7 +41,7 @@ import {
 import UserTableRow from '../user-table-row';
 import UserTableToolbar from '../user-table-toolbar';
 import UserTableFiltersResult from '../user-table-filters-result';
-import { fetchAllUsers } from 'src/apis';
+import { fetchAllUsers, deleteUserById, deleteUserByIds } from 'src/apis';
 // ----------------------------------------------------------------------
 
 const STATUS_OPTIONS = [{ value: 'all', label: 'All' }];
@@ -106,38 +107,47 @@ export default function UserListView() {
     setFilters(defaultFilters);
   }, []);
 
+  const handleSelectRow = (userId) => {
+    setSelectedUserIds((prevSelected) => {
+      const isSelected = prevSelected.includes(userId);
+      if (isSelected) {
+        return prevSelected.filter((id) => id !== userId);
+      } else {
+        return [...prevSelected, userId];
+      }
+    });
+  };
+
+  const [selectedUserIds, setSelectedUserIds] = useState([]);
+
   const handleDeleteRow = useCallback(
-    (userId) => {
-      const deleteRow = userData.filter((user) => user.userId !== userId);
-
-      enqueueSnackbar('Delete success!');
-
-      setUserData(deleteRow);
-
-      table.onUpdatePageDeleteRow(dataInPage.length);
-    },
-    [dataInPage.length, enqueueSnackbar, table, userData]
-  );
-
-  const handleEditRow = useCallback(
-    (userId) => {
-      router.push(paths.dashboard.user.edit(userId));
-    },
-    [router]
-  );
-
+    async (userId) => {
+      try {
+        const response = await deleteUserById(userId);
+        console.log('Delete response:', response);
   
+        enqueueSnackbar('Delete success!', { variant: 'success' });
+  
+        updateUserDataAfterDeletion([userId]);
+  
+      } catch (error) {
+        enqueueSnackbar('Error deleting user', { variant: 'error' });
+      }
+    },
+    [enqueueSnackbar]
+  );
+
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MTA0MzEzNzIsImlzQWRtaW4iOnRydWUsInVzZXJJRCI6IjEyMzEyMzEyMyJ9._iVj7hDWgcgOLuh6xtcXgO1wr05lmgSSVuXbNgGEJ0M';
-        const response = await fetchAllUsers(token);
-        console.log('API Response:', response);
-        if (response.status_code === 0) {
-          console.log('Data received:', response.Data);
-          setUserData(response.Data);
+        const data = await fetchAllUsers();
+        console.log('API Response:', data);
+  
+        if (data.status_code === 0) {
+          console.log('Data received:', data.Data);
+          setUserData(data.Data);
         } else {
-          throw new Error(response.status_msg);
+          throw new Error(data.status_msg);
         }
       } catch (error) {
         console.error('Error fetching user data:', error);
@@ -146,7 +156,40 @@ export default function UserListView() {
     };
   
     fetchUserData();
-  }, [enqueueSnackbar]);
+  }, [enqueueSnackbar]);  
+
+  const handleBatchDelete = async () => {
+    if (selectedUserIds.length === 0) {
+      enqueueSnackbar('No users selected', { variant: 'warning' });
+      return;
+    }
+  
+    try {
+      const response = await deleteUserByIds(selectedUserIds.join('|'));
+      console.log('Batch delete response:', response);
+  
+      updateUserDataAfterDeletion(selectedUserIds);
+  
+      setSelectedUserIds([]);
+  
+      enqueueSnackbar('Users deleted successfully', { variant: 'success' });
+    } catch (error) {
+      enqueueSnackbar('Error deleting users', { variant: 'error' });
+    }
+  };
+  
+  function updateUserDataAfterDeletion(deletedUserIds) {
+    setUserData(prevUserData =>
+      prevUserData.filter(user => !deletedUserIds.includes(user.userId))
+    );
+  }  
+  
+  const handleEditRow = useCallback(
+    (userId) => {
+      router.push(paths.dashboard.user.edit(userId));
+    },
+    [router]
+  );
   
   return (
     <>
@@ -190,7 +233,7 @@ export default function UserListView() {
               />
             ))}
           </Tabs>
-
+          
           <UserTableToolbar
             filters={filters}
             onFilters={handleFilters}
@@ -226,6 +269,16 @@ export default function UserListView() {
               }
             />
 
+            {
+              selectedUserIds.length > 0 && (
+                <Tooltip title="Delete selected users">
+                  <IconButton onClick={handleBatchDelete} color="primary">
+                    <DeleteIcon />
+                  </IconButton>
+                </Tooltip>
+              )
+            }
+
             <Scrollbar>
               <Table size={table.dense ? 'small' : 'medium'} sx={{ minWidth: 960 }}>
                 <TableHeadCustom
@@ -245,11 +298,13 @@ export default function UserListView() {
                         row={user}
                         onDeleteRow={() => handleDeleteRow(user.userId)}
                         onEditRow={() => handleEditRow(user.userId)}
+                        onSelectRow={() => handleSelectRow(user.userId)}
                       />
                     ))}
 
                   <TableEmptyRows
                     height={denseHeight}
+                    
                     emptyRows={emptyRows(table.page, table.rowsPerPage, dataFiltered.length)}
                   />
 

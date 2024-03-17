@@ -38,7 +38,10 @@ export default function UserTableRow({ row, selected, onEditRow, onSelectRow, on
     <>
       <TableRow hover selected={selected}>
         <TableCell padding="checkbox">
-          <Checkbox checked={selected} onClick={onSelectRow} />
+          <Checkbox
+          checked={selected} 
+          onChange={onSelectRow}
+        />
         </TableCell>
 
         <TableCell sx={{ display: 'flex', alignItems: 'center'}}>
@@ -55,7 +58,10 @@ export default function UserTableRow({ row, selected, onEditRow, onSelectRow, on
           />
         </TableCell>
 
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>{gender === 1 ? 'Female' : 'Male'}</TableCell>
+        <TableCell sx={{ whiteSpace: 'nowrap' }}>
+          {gender === 1 ? 'Female' : gender === 0 ? 'Male' : 'Secrecy'}
+        </TableCell>
+
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{!isNaN(Date.parse(birthday)) ? new Date(birthday).toLocaleDateString() : 'Secrecy'}</TableCell>
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{region}</TableCell>
 
