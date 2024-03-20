@@ -7,7 +7,7 @@ export const HOST_API = 'http://43.136.232.116:5000/api';
 const apiInstance = axios.create({
   baseURL: HOST_API,
   headers: {
-    Authorization: `Bearer ${'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MTA3NTc0OTcsImlzQWRtaW4iOnRydWUsInVzZXJJRCI6IjEyMzEyMzEyMyJ9.UepFdD-7XwQJygtgPMTfteCACA4t0d09EZh8qM8wTPE'}`, // 将Token配置在这里
+    Authorization: `Bearer ${'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MTEwMjYxOTcsImlzQWRtaW4iOnRydWUsInVzZXJJRCI6IjEyMzEyMzEyMyJ9.jTv3_Ke2xQSfRBTpvgCM_W9_6tTZWwBY5zgWC_JHrtk'}`, 
   }
 });
 
@@ -37,6 +37,26 @@ export const deleteUserByIds = async (userIdsString) => {
     return response.data;
   } catch (error) {
     console.error('Error deleting users:', error);
+    throw error;
+  }
+};
+
+export const banUserById = async (userId) => {
+  try {
+    const response = await apiInstance.post(`/user/ban?userID=${userId}`);
+    return response.data;
+  } catch (error) {
+    console.error('Error banning user:', error);
+    throw error;
+  }
+};
+
+export const unbanUserById = async (userId) => {
+  try {
+    const response = await apiInstance.post(`/user/unban?userID=${userId}`);
+    return response.data;
+  } catch (error) {
+    console.error('Error unbanning user:', error);
     throw error;
   }
 };

@@ -17,10 +17,11 @@ import { ConfirmDialog } from 'src/components/custom-dialog';
 import CustomPopover, { usePopover } from 'src/components/custom-popover';
 
 import UserQuickEditForm from './user-quick-edit-form';
+import { banUserById, unbanUserById } from 'src/apis';
 
 // ----------------------------------------------------------------------
 
-export default function UserTableRow({ row, selected, onEditRow, onSelectRow, onDeleteRow }) {
+export default function UserTableRow({ row, selected, onEditRow, onSelectRow, onDeleteRow, onBanRow, onUnbanRow }) {
   if (!row) {
     return null; 
   }
@@ -106,6 +107,28 @@ export default function UserTableRow({ row, selected, onEditRow, onSelectRow, on
           <Iconify icon="solar:pen-bold" />
           Edit
         </MenuItem>
+
+        <MenuItem onClick={() => {
+            onBanRow()
+            popover.onClose(); 
+          }}
+          // sx={{ color: '#cc0000' }}
+          sx={{ color: 'error.main' }}
+        >
+          <Iconify icon="ant-design:stop-outlined" />
+          Ban
+        </MenuItem>
+
+        <MenuItem onClick={() => { 
+            onUnbanRow()
+            popover.onClose(); 
+          }}
+          // sx={{ color: '#4CAF50' }}
+        >
+          <Iconify icon="fluent:accessibility-checkmark-24-regular" />
+          Unban
+        </MenuItem>
+
       </CustomPopover>
 
       <ConfirmDialog

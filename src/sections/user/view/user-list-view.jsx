@@ -41,7 +41,7 @@ import {
 import UserTableRow from '../user-table-row';
 import UserTableToolbar from '../user-table-toolbar';
 import UserTableFiltersResult from '../user-table-filters-result';
-import { fetchAllUsers, deleteUserById, deleteUserByIds } from 'src/apis';
+import { fetchAllUsers, deleteUserById, deleteUserByIds, banUserById, unbanUserById } from 'src/apis';
 // ----------------------------------------------------------------------
 
 const STATUS_OPTIONS = [{ value: 'all', label: 'All' }];
@@ -137,11 +137,37 @@ export default function UserListView() {
     [enqueueSnackbar]
   );
 
+  const handleBanUser = useCallback(async (userId) => {
+    try {
+      const response = await banUserById(userId);
+      console.log('Ban response:', response);
+      
+      enqueueSnackbar('User banned successfully!', { variant: 'success' });
+      
+    } catch (error) {
+      console.error('Error banning user:', error);
+      enqueueSnackbar('Error banning user', { variant: 'error' });
+    }
+  }, [enqueueSnackbar]);
+  
+  const handleUnbanUser = useCallback(async (userId) => {
+    try {
+      const response = await unbanUserById(userId);
+      console.log('Unban response:', response);
+      
+      enqueueSnackbar('User unbanned successfully!', { variant: 'success' });
+  
+    } catch (error) {
+      console.error('Error unbanning user:', error);
+      enqueueSnackbar('Error unbanning user', { variant: 'error' });
+    }
+  }, [enqueueSnackbar]);
+
   useEffect(() => {
     const fetchUserData = async () => {
       try {
         const data = await fetchAllUsers();
-        console.log('API Response:', data);
+        // console.log('API Response:', data);
   
         if (data.status_code === 0) {
           console.log('Data received:', data.Data);
@@ -298,6 +324,8 @@ export default function UserListView() {
                         row={user}
                         onDeleteRow={() => handleDeleteRow(user.userId)}
                         onEditRow={() => handleEditRow(user.userId)}
+                        onBanRow={() => handleBanUser(user.userId)}
+                        onUnbanRow={() => handleUnbanUser(user.userId)}
                         onSelectRow={() => handleSelectRow(user.userId)}
                       />
                     ))}
