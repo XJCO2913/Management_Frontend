@@ -17,7 +17,6 @@ import { ConfirmDialog } from 'src/components/custom-dialog';
 import CustomPopover, { usePopover } from 'src/components/custom-popover';
 
 import UserQuickEditForm from './user-quick-edit-form';
-import { banUserById, unbanUserById } from 'src/apis';
 
 // ----------------------------------------------------------------------
 

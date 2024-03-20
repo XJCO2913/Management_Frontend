@@ -41,7 +41,7 @@ import {
 import UserTableRow from '../user-table-row';
 import UserTableToolbar from '../user-table-toolbar';
 import UserTableFiltersResult from '../user-table-filters-result';
-import { fetchAllUsers, deleteUserById, deleteUserByIds, banUserById, unbanUserById } from 'src/apis';
+import { apiInstance, userEndpoints } from 'src/apis';
 // ----------------------------------------------------------------------
 
 const STATUS_OPTIONS = [{ value: 'all', label: 'All' }];
@@ -102,6 +102,56 @@ export default function UserListView() {
     },
     [table]
   );
+
+  const fetchAllUsers = async () => {
+    try {
+      const response = await apiInstance.get(userEndpoints.fetchAllUsers);
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching all users:', error);
+      throw error;
+    }
+  };
+
+  const deleteUserById = async (userId) => {
+    try {
+      const response = await apiInstance.delete(userEndpoints.deleteUserById(userId));
+      return response.data;
+    } catch (error) {
+      console.error('Error deleting user:', error);
+      throw error;
+    }
+  };
+
+  const deleteUserByIds = async (userIdsString) => {
+    try {
+      const response = await apiInstance.delete(userEndpoints.deleteUserByIds(userIdsString));
+      return response.data;
+    } catch (error) {
+      console.error('Error deleting users:', error);
+      throw error;
+    }
+  };
+
+  const banUserById = async (userId) => {
+    try {
+      const response = await apiInstance.post(userEndpoints.banUserById(userId));
+      return response.data;
+    } catch (error) {
+      console.error('Error banning user:', error);
+      throw error;
+    }
+  };
+
+  const unbanUserById = async (userId) => {
+    try {
+      const response = await apiInstance.post(userEndpoints.unbanUserById(userId));
+      return response.data;
+    } catch (error) {
+      console.error('Error unbanning user:', error);
+      throw error;
+    }
+  };
 
   const handleResetFilters = useCallback(() => {
     setFilters(defaultFilters);
