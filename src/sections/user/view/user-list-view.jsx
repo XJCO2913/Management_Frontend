@@ -12,7 +12,6 @@ import Container from '@mui/material/Container';
 import TableBody from '@mui/material/TableBody';
 import IconButton from '@mui/material/IconButton';
 import TableContainer from '@mui/material/TableContainer';
-import DeleteIcon from '@mui/icons-material/Delete';
 
 import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hooks';
@@ -138,8 +137,13 @@ export default function UserListView() {
       const response = await apiInstance.post(userEndpoints.banUserById(userId));
       return response.data;
     } catch (error) {
-      console.error('Error banning user:', error);
-      throw error;
+      if (error.response.data.status_msg) {
+        console.error('Error banning user:', error.response.data.status_msg);
+        throw new Error(error.response.data.status_msg);
+      } else {
+        console.error('Error banning user:', error);
+        throw error;
+      }
     }
   };
 
@@ -148,8 +152,13 @@ export default function UserListView() {
       const response = await apiInstance.post(userEndpoints.unbanUserById(userId));
       return response.data;
     } catch (error) {
-      console.error('Error unbanning user:', error);
-      throw error;
+      if (error.response.data.status_msg) {
+        console.error('Error unbanning user:', error.response.data.status_msg);
+        throw new Error(error.response.data.status_msg);
+      } else {
+        console.error('Error unbanning user:', error);
+        throw error;
+      }
     }
   };
 
@@ -196,7 +205,7 @@ export default function UserListView() {
       
     } catch (error) {
       console.error('Error banning user:', error);
-      enqueueSnackbar('Error banning user', { variant: 'error' });
+      enqueueSnackbar(error.message, { variant: 'error' });
     }
   }, [enqueueSnackbar]);
   
@@ -209,7 +218,7 @@ export default function UserListView() {
   
     } catch (error) {
       console.error('Error unbanning user:', error);
-      enqueueSnackbar('Error unbanning user', { variant: 'error' });
+      enqueueSnackbar(error.message, { variant: 'error' });
     }
   }, [enqueueSnackbar]);
 
@@ -348,8 +357,10 @@ export default function UserListView() {
             {
               selectedUserIds.length > 0 && (
                 <Tooltip title="Delete selected users">
-                  <IconButton onClick={handleBatchDelete} color="primary">
-                    <DeleteIcon />
+                  <IconButton onClick={handleBatchDelete}
+                    sx={{ color: 'error.main' }}
+                  >
+                    <Iconify icon="solar:trash-bin-trash-bold" />
                   </IconButton>
                 </Tooltip>
               )
