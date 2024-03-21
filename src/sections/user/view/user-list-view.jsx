@@ -389,6 +389,14 @@ export default function UserListView() {
             {
               selectedUserIds.length > 0 && (
                 <>
+                  <Tooltip title="Delete selected users">
+                    <IconButton onClick={handleBatchDelete}
+                      sx={{ color: 'error.main' }}
+                    >
+                      <Iconify icon="solar:trash-bin-trash-bold" />
+                    </IconButton>
+                  </Tooltip>
+
                   <Tooltip title="Ban selected users">
                     <IconButton onClick={handleBatchBan}
                       sx={{ color: 'warning.main' }}
@@ -396,18 +404,12 @@ export default function UserListView() {
                       <Iconify icon="eva:slash-outline" />
                     </IconButton>
                   </Tooltip>
+                  
                   <Tooltip title="Unban selected users">
                     <IconButton onClick={handleBatchUnban}
                       sx={{ color: 'success.main' }}
                     >
                       <Iconify icon="eva:checkmark-circle-2-outline" />
-                    </IconButton>
-                  </Tooltip>
-                  <Tooltip title="Delete selected users">
-                    <IconButton onClick={handleBatchDelete}
-                      sx={{ color: 'error.main' }}
-                    >
-                      <Iconify icon="solar:trash-bin-trash-bold" />
                     </IconButton>
                   </Tooltip>
                 </>
