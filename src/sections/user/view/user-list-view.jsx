@@ -391,7 +391,7 @@ export default function UserListView() {
                 <>
                   <Tooltip title="Delete selected users">
                     <IconButton onClick={handleBatchDelete}
-                      sx={{ color: 'error.main' }}
+                      sx={{ color: 'error.main', ml: 1 }}
                     >
                       <Iconify icon="solar:trash-bin-trash-bold" />
                     </IconButton>
@@ -404,7 +404,7 @@ export default function UserListView() {
                       <Iconify icon="eva:slash-outline" />
                     </IconButton>
                   </Tooltip>
-                  
+
                   <Tooltip title="Unban selected users">
                     <IconButton onClick={handleBatchUnban}
                       sx={{ color: 'success.main' }}
