@@ -222,6 +222,38 @@ export default function UserListView() {
     }
   }, [enqueueSnackbar]);
 
+  const handleBatchBan = async () => {
+    if (selectedUserIds.length === 0) {
+      enqueueSnackbar('No users selected', { variant: 'warning' });
+      return;
+    }
+  
+    try {
+      const response = await apiInstance.post(userEndpoints.banUserByIds(selectedUserIds.join('|')));
+      console.log('Batch ban response:', response);
+  
+      enqueueSnackbar('Users banned successfully', { variant: 'success' });
+    } catch (error) {
+      enqueueSnackbar('Error banning users', { variant: 'error' });
+    }
+  };
+  
+  const handleBatchUnban = async () => {
+    if (selectedUserIds.length === 0) {
+      enqueueSnackbar('No users selected', { variant: 'warning' });
+      return;
+    }
+  
+    try {
+      const response = await apiInstance.post(userEndpoints.unbanUserByIds(selectedUserIds.join('|')));
+      console.log('Batch unban response:', response);
+  
+      enqueueSnackbar('Users unbanned successfully', { variant: 'success' });
+    } catch (error) {
+      enqueueSnackbar('Error unbanning users', { variant: 'error' });
+    }
+  };  
+
   useEffect(() => {
     const fetchUserData = async () => {
       try {
@@ -356,13 +388,29 @@ export default function UserListView() {
 
             {
               selectedUserIds.length > 0 && (
-                <Tooltip title="Delete selected users">
-                  <IconButton onClick={handleBatchDelete}
-                    sx={{ color: 'error.main' }}
-                  >
-                    <Iconify icon="solar:trash-bin-trash-bold" />
-                  </IconButton>
-                </Tooltip>
+                <>
+                  <Tooltip title="Ban selected users">
+                    <IconButton onClick={handleBatchBan}
+                      sx={{ color: 'warning.main' }}
+                    >
+                      <Iconify icon="eva:slash-outline" />
+                    </IconButton>
+                  </Tooltip>
+                  <Tooltip title="Unban selected users">
+                    <IconButton onClick={handleBatchUnban}
+                      sx={{ color: 'success.main' }}
+                    >
+                      <Iconify icon="eva:checkmark-circle-2-outline" />
+                    </IconButton>
+                  </Tooltip>
+                  <Tooltip title="Delete selected users">
+                    <IconButton onClick={handleBatchDelete}
+                      sx={{ color: 'error.main' }}
+                    >
+                      <Iconify icon="solar:trash-bin-trash-bold" />
+                    </IconButton>
+                  </Tooltip>
+                </>
               )
             }
 
