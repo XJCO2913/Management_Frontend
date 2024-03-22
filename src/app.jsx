@@ -1,4 +1,5 @@
 import 'src/global.css';
+import 'src/index.css';
 
 // i18n
 import 'src/locales/i18n';
