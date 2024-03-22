@@ -44,11 +44,14 @@ export default function UserTableRow({ row, selected, onEditRow, onSelectRow, on
         />
         </TableCell>
 
-        <TableCell sx={{ display: 'flex', alignItems: 'center'}}>
+        <TableCell sx={{ display: 'flex', alignItems: 'center' }}>
           <Avatar alt={username} src={avatarUrl} sx={{ mr: 2 }} />
-
           <ListItemText
-            primary={username}
+            primary={
+              <span style={{ textDecoration: row.isBanned ? 'line-through' : 'none', color: row.isBanned ? 'red' : 'inherit' }}>
+                {username}
+              </span>
+            }
             secondary={`Member since ${new Date(membershipTime * 1000).toLocaleDateString()}`}
             primaryTypographyProps={{ typography: 'body2' }}
             secondaryTypographyProps={{

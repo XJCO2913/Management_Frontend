@@ -199,34 +199,36 @@ export default function UserListView() {
   const handleBanUser = useCallback(async (userId) => {
     try {
       const response = await banUserById(userId);
-      console.log('Ban response:', response);
-      
-      enqueueSnackbar('User banned successfully!', { variant: 'success' });
-      
+      if (response.status_code === 0) {
+        setUserData((currentUsers) =>
+          currentUsers.map((user) =>
+            user.userId === userId ? { ...user, isBanned: true } : user
+          )
+        );
+        enqueueSnackbar('User banned successfully!', { variant: 'success' });
+      }
     } catch (error) {
       console.error('Error banning user:', error);
-      if (error.message)
-        enqueueSnackbar(error.message, { variant: 'error' });
-      else
-        enqueueSnackbar('Error banning users', { variant: 'error' });
+      enqueueSnackbar('Error banning user', { variant: 'error' });
     }
-  }, [enqueueSnackbar]);
+  }, [enqueueSnackbar, setUserData]);
   
   const handleUnbanUser = useCallback(async (userId) => {
     try {
       const response = await unbanUserById(userId);
-      console.log('Unban response:', response);
-      
-      enqueueSnackbar('User unbanned successfully!', { variant: 'success' });
-  
+      if (response.status_code === 0) {
+        setUserData((currentUsers) =>
+          currentUsers.map((user) =>
+            user.userId === userId ? { ...user, isBanned: false } : user
+          )
+        );
+        enqueueSnackbar('User unbanned successfully!', { variant: 'success' });
+      }
     } catch (error) {
       console.error('Error unbanning user:', error);
-      if (error.message)
-        enqueueSnackbar(error.message, { variant: 'error' });
-      else
-        enqueueSnackbar('Error unbanning users', { variant: 'error' });
+      enqueueSnackbar('Error unbanning user', { variant: 'error' });
     }
-  }, [enqueueSnackbar]);
+  }, [enqueueSnackbar, setUserData]);  
 
   const handleBatchBan = async () => {
     if (selectedUserIds.length === 0) {
@@ -236,9 +238,14 @@ export default function UserListView() {
   
     try {
       const response = await apiInstance.post(userEndpoints.banUserByIds(selectedUserIds.join('|')));
-      console.log('Batch ban response:', response);
-  
-      enqueueSnackbar('Users banned successfully', { variant: 'success' });
+      if (response.status_code === 0) {
+        setUserData(currentUsers =>
+          currentUsers.map(user =>
+            selectedUserIds.includes(user.userId) ? { ...user, isBanned: true } : user
+          )
+        );
+        enqueueSnackbar('Users banned successfully', { variant: 'success' });
+      }
     } catch (error) {
         const errorMessage = error.response && error.response.data && error.response.data.status_msg
         ? error.response.data.status_msg
@@ -255,9 +262,14 @@ export default function UserListView() {
   
     try {
       const response = await apiInstance.post(userEndpoints.unbanUserByIds(selectedUserIds.join('|')));
-      console.log('Batch unban response:', response);
-  
-      enqueueSnackbar('Users unbanned successfully', { variant: 'success' });
+      if (response.status_code === 0) {
+        setUserData(currentUsers =>
+          currentUsers.map(user =>
+            selectedUserIds.includes(user.userId) ? { ...user, isBanned: false } : user
+          )
+        );
+        enqueueSnackbar('Users unbanned successfully', { variant: 'success' });
+      }
     } catch (error) {
         const errorMessage = error.response && error.response.data && error.response.data.status_msg
         ? error.response.data.status_msg
