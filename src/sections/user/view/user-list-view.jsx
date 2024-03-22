@@ -205,7 +205,10 @@ export default function UserListView() {
       
     } catch (error) {
       console.error('Error banning user:', error);
-      enqueueSnackbar(error.message, { variant: 'error' });
+      if (error.message)
+        enqueueSnackbar(error.message, { variant: 'error' });
+      else
+        enqueueSnackbar('Error banning users', { variant: 'error' });
     }
   }, [enqueueSnackbar]);
   
@@ -218,7 +221,10 @@ export default function UserListView() {
   
     } catch (error) {
       console.error('Error unbanning user:', error);
-      enqueueSnackbar(error.message, { variant: 'error' });
+      if (error.message)
+        enqueueSnackbar(error.message, { variant: 'error' });
+      else
+        enqueueSnackbar('Error unbanning users', { variant: 'error' });
     }
   }, [enqueueSnackbar]);
 
@@ -234,7 +240,10 @@ export default function UserListView() {
   
       enqueueSnackbar('Users banned successfully', { variant: 'success' });
     } catch (error) {
-      enqueueSnackbar('Error banning users', { variant: 'error' });
+        const errorMessage = error.response && error.response.data && error.response.data.status_msg
+        ? error.response.data.status_msg
+        : 'Error banning users';
+      enqueueSnackbar(errorMessage, { variant: 'error' });
     }
   };
   
@@ -250,7 +259,10 @@ export default function UserListView() {
   
       enqueueSnackbar('Users unbanned successfully', { variant: 'success' });
     } catch (error) {
-      enqueueSnackbar('Error unbanning users', { variant: 'error' });
+        const errorMessage = error.response && error.response.data && error.response.data.status_msg
+        ? error.response.data.status_msg
+        : 'Error unbanning users';
+      enqueueSnackbar(errorMessage, { variant: 'error' });
     }
   };  
 
