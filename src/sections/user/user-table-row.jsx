@@ -8,6 +8,7 @@ import TableRow from '@mui/material/TableRow';
 import Checkbox from '@mui/material/Checkbox';
 import TableCell from '@mui/material/TableCell';
 import IconButton from '@mui/material/IconButton';
+import Label from 'src/components/label';
 import ListItemText from '@mui/material/ListItemText';
 
 import { useBoolean } from 'src/hooks/use-boolean';
@@ -45,20 +46,28 @@ export default function UserTableRow({ row, selected, onEditRow, onSelectRow, on
 
         <TableCell sx={{ display: 'flex', alignItems: 'center' }}>
           <Avatar alt={username} src={avatarUrl} sx={{ mr: 2 }} />
-          <ListItemText
-            primary={
-              <>
-                {username}
-                {row.isBanned && <Iconify icon="mdi:account-off-outline" style={{ color: 'red', marginLeft: 4 }} fontSize="small" />}
-              </>
-            }
-            secondary={`Member since ${new Date(membershipTime * 1000).toLocaleDateString()}`}
-            primaryTypographyProps={{ typography: 'body2', display: 'flex', alignItems: 'center' }}
-            secondaryTypographyProps={{
-              component: 'span',
-              color: 'text.disabled',
-            }}
-          />
+          <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap' }}>
+            <ListItemText
+              primary={
+                <>
+                  {username}
+                  <Label
+                    variant="soft"
+                    color={row.isBanned ? 'error' : 'success'} // Use 'success' to indicate green color for active users
+                    sx={{ ml: 1, display: 'inline-flex', verticalAlign: 'middle' }}
+                  >
+                    {row.isBanned ? 'Banned' : 'Active'}
+                  </Label>
+                </>
+              }
+              secondary={`Member since ${new Date(membershipTime * 1000).toLocaleDateString()}`}
+              primaryTypographyProps={{ typography: 'body2', display: 'flex', alignItems: 'center', flexWrap: 'wrap' }}
+              secondaryTypographyProps={{
+                component: 'span',
+                color: 'text.disabled',
+              }}
+            />
+          </div>
         </TableCell>
 
         <TableCell sx={{ whiteSpace: 'nowrap' }}>
