@@ -17,7 +17,6 @@ import { ConfirmDialog } from 'src/components/custom-dialog';
 import CustomPopover, { usePopover } from 'src/components/custom-popover';
 
 import UserQuickEditForm from './user-quick-edit-form';
-
 // ----------------------------------------------------------------------
 
 export default function UserTableRow({ row, selected, onEditRow, onSelectRow, onDeleteRow, onBanRow, onUnbanRow }) {
@@ -48,12 +47,13 @@ export default function UserTableRow({ row, selected, onEditRow, onSelectRow, on
           <Avatar alt={username} src={avatarUrl} sx={{ mr: 2 }} />
           <ListItemText
             primary={
-              <span style={{ textDecoration: row.isBanned ? 'line-through' : 'none', color: row.isBanned ? 'red' : 'inherit' }}>
+              <>
                 {username}
-              </span>
+                {row.isBanned && <Iconify icon="mdi:account-off-outline" style={{ color: 'red', marginLeft: 4 }} fontSize="small" />}
+              </>
             }
             secondary={`Member since ${new Date(membershipTime * 1000).toLocaleDateString()}`}
-            primaryTypographyProps={{ typography: 'body2' }}
+            primaryTypographyProps={{ typography: 'body2', display: 'flex', alignItems: 'center' }}
             secondaryTypographyProps={{
               component: 'span',
               color: 'text.disabled',

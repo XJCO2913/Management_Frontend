@@ -20,4 +20,5 @@ export const userEndpoints = {
   banUserByIds: (userIdsString) => `/user/ban?userID=${userIdsString}`,
   unbanUserByIds: (userIdsString) => `/user/unban?userID=${userIdsString}`,
   checkUserStatusById: (userId) => `/user/status?userID=${userId}`,
+  AllUserStatus: `/user/statuses`,
 };

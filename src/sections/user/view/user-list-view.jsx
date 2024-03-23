@@ -238,14 +238,13 @@ export default function UserListView() {
   
     try {
       const response = await apiInstance.post(userEndpoints.banUserByIds(selectedUserIds.join('|')));
-      if (response.status_code === 0) {
-        setUserData(currentUsers =>
-          currentUsers.map(user =>
-            selectedUserIds.includes(user.userId) ? { ...user, isBanned: true } : user
-          )
-        );
-        enqueueSnackbar('Users banned successfully', { variant: 'success' });
-      }
+      console.log('Batch ban response:', response);
+      setUserData(currentUsers =>
+        currentUsers.map(user =>
+          selectedUserIds.includes(user.userId) ? { ...user, isBanned: true } : user
+        )
+      );
+      enqueueSnackbar('Users banned successfully', { variant: 'success' });
     } catch (error) {
         const errorMessage = error.response && error.response.data && error.response.data.status_msg
         ? error.response.data.status_msg
@@ -262,14 +261,13 @@ export default function UserListView() {
   
     try {
       const response = await apiInstance.post(userEndpoints.unbanUserByIds(selectedUserIds.join('|')));
-      if (response.status_code === 0) {
-        setUserData(currentUsers =>
-          currentUsers.map(user =>
-            selectedUserIds.includes(user.userId) ? { ...user, isBanned: false } : user
-          )
-        );
-        enqueueSnackbar('Users unbanned successfully', { variant: 'success' });
-      }
+      console.log('Batch unban response:', response);
+      setUserData(currentUsers =>
+        currentUsers.map(user =>
+          selectedUserIds.includes(user.userId) ? { ...user, isBanned: false } : user
+        )
+      );
+      enqueueSnackbar('Users unbanned successfully', { variant: 'success' });
     } catch (error) {
         const errorMessage = error.response && error.response.data && error.response.data.status_msg
         ? error.response.data.status_msg
@@ -278,27 +276,46 @@ export default function UserListView() {
     }
   };  
 
+  const fetchUserStatuses = async () => {
+    try {
+      const response = await apiInstance.get(userEndpoints.AllUserStatus);
+        if (response.data.status_code === 0) {
+          return response.data.Data; 
+        } else {
+          throw new Error(response.data.status_msg);
+        }
+    } catch (error) {
+      console.error('Error fetching user statuses:', error);
+      throw error;
+    }
+  };
+  
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        const data = await fetchAllUsers();
-        // console.log('API Response:', data);
-  
-        if (data.status_code === 0) {
-          console.log('Data received:', data.Data);
-          setUserData(data.Data);
+        const userData = await fetchAllUsers();
+        if (userData.status_code === 0) {
+          const userStatuses = await fetchUserStatuses();
+          const updatedUserData = userData.Data.map(user => {
+            const status = userStatuses.find(status => status.userId === user.userId);
+            return {
+              ...user,
+              isBanned: status ? status.isBanned : false,
+            };
+          });
+          setUserData(updatedUserData);
         } else {
-          throw new Error(data.status_msg);
+          throw new Error(userData.status_msg);
         }
       } catch (error) {
-        console.error('Error fetching user data:', error);
+        console.error('Error fetching data:', error);
         enqueueSnackbar('An error occurred while fetching user data', { variant: 'error' });
       }
     };
   
     fetchUserData();
-  }, [enqueueSnackbar]);  
-
+  }, [enqueueSnackbar]);
+  
   const handleBatchDelete = async () => {
     if (selectedUserIds.length === 0) {
       enqueueSnackbar('No users selected', { variant: 'warning' });
