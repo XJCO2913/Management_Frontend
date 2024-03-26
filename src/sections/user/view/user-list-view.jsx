@@ -1,5 +1,5 @@
 import isEqual from 'lodash/isEqual';
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useNavigate } from 'react';
 
 import Tab from '@mui/material/Tab';
 import Tabs from '@mui/material/Tabs';
@@ -79,7 +79,7 @@ export default function UserListView() {
     inputData: userData,
     filters,
   });
-
+  
   const dataInPage = dataFiltered.slice(
     table.page * table.rowsPerPage,
     table.page * table.rowsPerPage + table.rowsPerPage
@@ -178,6 +178,11 @@ export default function UserListView() {
   };
 
   const [selectedUserIds, setSelectedUserIds] = useState([]);
+
+   
+  const handleEditRow = useCallback((userId) => () => {
+    router.push(paths.user.edit(userId)); 
+  }, [router]);
 
   const handleDeleteRow = useCallback(
     async (userId) => {
@@ -315,7 +320,7 @@ export default function UserListView() {
   
     fetchUserData();
   }, [enqueueSnackbar]);
-  
+ 
   const handleBatchDelete = async () => {
     if (selectedUserIds.length === 0) {
       enqueueSnackbar('No users selected', { variant: 'warning' });
@@ -342,13 +347,6 @@ export default function UserListView() {
     );
   }  
   
-  const handleEditRow = useCallback(
-    (userId) => {
-      router.push(paths.dashboard.user.edit(userId));
-    },
-    [router]
-  );
-  
   return (
     <>
       <Container maxWidth={settings.themeStretch ? false : 'lg'}>
@@ -356,13 +354,13 @@ export default function UserListView() {
           heading="List"
           links={[
             { name: 'Dashboard', href: paths.dashboard.root },
-            { name: 'User', href: paths.dashboard.user.root },
+            { name: 'User', href: paths.user.list },
             { name: 'List' },
           ]}
           action={
             <Button
               component={RouterLink}
-              href={paths.dashboard.user.new}
+              href="#"
               variant="contained"
               startIcon={<Iconify icon="mingcute:add-line" />}
             >

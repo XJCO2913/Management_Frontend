@@ -7,12 +7,13 @@ export const HOST_API = 'http://43.136.232.116:5000/test';
 export const apiInstance = axios.create({
   baseURL: HOST_API,
   headers: {
-    Authorization: `Bearer ${'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MTExOTg4OTgsImlzQWRtaW4iOnRydWUsInVzZXJJRCI6IjEyMzEyMzEyMyJ9.U1YFKfw08EwPHTUTOy46ywEYZklduAaLm_X-gEl8TD4'}`, 
+    Authorization: `Bearer ${'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MTE0NTkxNzksImlzQWRtaW4iOnRydWUsInVzZXJJRCI6IjEyMzEyMzEyMyJ9.5JU3qg4korx2cgjCxa3MOOgK4iZfufnzvHwnrnH7wpY'}`, 
   }
 });
 
 export const userEndpoints = {
   fetchAllUsers: '/users',
+  fetchUserById: (userId) => `/user?userID=${userId}`,
   deleteUserById: (userId) => `/user?userID=${userId}`,
   deleteUserByIds: (userIdsString) => `/user?userID=${userIdsString}`,
   banUserById: (userId) => `/user/ban?userID=${userId}`,
@@ -21,4 +22,9 @@ export const userEndpoints = {
   unbanUserByIds: (userIdsString) => `/user/unban?userID=${userIdsString}`,
   checkUserStatusById: (userId) => `/user/status?userID=${userId}`,
   AllUserStatus: `/user/statuses`,
+  editUserById: (userId, userData) => ({
+    url: `/user?userID=${userId}`,
+    method: 'patch',
+    data: userData,
+  }),
 };

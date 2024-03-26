@@ -1,5 +1,4 @@
 import PropTypes from 'prop-types';
-
 import Button from '@mui/material/Button';
 import Avatar from '@mui/material/Avatar';
 import Tooltip from '@mui/material/Tooltip';
@@ -12,19 +11,20 @@ import Label from 'src/components/label';
 import ListItemText from '@mui/material/ListItemText';
 
 import { useBoolean } from 'src/hooks/use-boolean';
+import {useCallback} from 'react'
+import { useRouter } from 'src/routes/hooks';
+import { paths} from 'src/routes/paths'
 
 import Iconify from 'src/components/iconify';
 import { ConfirmDialog } from 'src/components/custom-dialog';
 import CustomPopover, { usePopover } from 'src/components/custom-popover';
-
-import UserQuickEditForm from './user-quick-edit-form';
 // ----------------------------------------------------------------------
 
 export default function UserTableRow({ row, selected, onEditRow, onSelectRow, onDeleteRow, onBanRow, onUnbanRow }) {
   if (!row) {
     return null; 
   }
-  // console.log(row)
+  console.log(row.userId)
 
   const { username, avatarUrl, gender, birthday, region, membershipTime } = row;
 
@@ -33,6 +33,8 @@ export default function UserTableRow({ row, selected, onEditRow, onSelectRow, on
   const quickEdit = useBoolean();
 
   const popover = usePopover();
+
+  const router = useRouter();
 
   return (
     <>
@@ -79,7 +81,7 @@ export default function UserTableRow({ row, selected, onEditRow, onSelectRow, on
 
         <TableCell align="right" sx={{ px: 1, whiteSpace: 'nowrap' }}>
           <Tooltip title="Quick Edit" placement="top" arrow>
-            <IconButton color={quickEdit.value ? 'inherit' : 'default'} onClick={quickEdit.onTrue}>
+            <IconButton color={quickEdit.value ? 'inherit' : 'default'} onClick={onEditRow}>
               <Iconify icon="solar:pen-bold" />
             </IconButton>
           </Tooltip>
@@ -90,7 +92,6 @@ export default function UserTableRow({ row, selected, onEditRow, onSelectRow, on
         </TableCell>
       </TableRow>
 
-      <UserQuickEditForm currentUser={row} open={quickEdit.value} onClose={quickEdit.onFalse} />
 
       <CustomPopover
         open={popover.open}
@@ -107,16 +108,6 @@ export default function UserTableRow({ row, selected, onEditRow, onSelectRow, on
         >
           <Iconify icon="solar:trash-bin-trash-bold" />
           Delete
-        </MenuItem>
-
-        <MenuItem
-          onClick={() => {
-            onEditRow();
-            popover.onClose();
-          }}
-        >
-          <Iconify icon="solar:pen-bold" />
-          Edit
         </MenuItem>
 
         <MenuItem onClick={() => {

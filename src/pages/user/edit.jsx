@@ -1,15 +1,17 @@
 import { Helmet } from 'react-helmet-async';
 
+import { UserEditView } from 'src/sections/user/view';
+
 // ----------------------------------------------------------------------
 
-export default function UserEditPage() {
+export default function UserListPage() {
   return (
     <>
       <Helmet>
-        <title> User Edit </title>
+        <title> Edit User </title>
       </Helmet>
-      
-      <div>this is user edit page</div>
+
+      <UserEditView />
     </>
   );
 }

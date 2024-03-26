@@ -1,6 +1,7 @@
+
 import * as Yup from 'yup';
 import PropTypes from 'prop-types';
-import { useMemo, useCallback } from 'react';
+import { useMemo, useCallback, useState } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 
@@ -31,48 +32,45 @@ import FormProvider, {
 } from 'src/components/hook-form';
 
 // ----------------------------------------------------------------------
-
 export default function UserNewEditForm({ currentUser }) {
-  const router = useRouter();
-
   const { enqueueSnackbar } = useSnackbar();
+  const [userData, setUserData] = useState([]);
+  const router = useRouter();
+  
+  const handleEditUser = async (userId, userData) => {
+    try {
+      const response = await apiInstance(userEndpoints.editUserById(userId, userData));
+      console.log('Edit user response:', response);
+
+      enqueueSnackbar('User updated successfully!', { variant: 'success' });
+      setUserData((currentUsers) =>
+        currentUsers.map((user) => (user.userId === userId ? { ...user, ...userData } : user))
+      );
+    } catch (error) {
+      console.error('Error editing user:', error);
+      enqueueSnackbar('Error editing user', { variant: 'error' });
+    }
+  };
 
   const NewUserSchema = Yup.object().shape({
-    name: Yup.string().required('Name is required'),
-    email: Yup.string().required('Email is required').email('Email must be a valid email address'),
-    phoneNumber: Yup.string().required('Phone number is required'),
-    address: Yup.string().required('Address is required'),
-    country: Yup.string().required('Country is required'),
-    company: Yup.string().required('Company is required'),
-    state: Yup.string().required('State is required'),
-    city: Yup.string().required('City is required'),
-    role: Yup.string().required('Role is required'),
-    zipCode: Yup.string().required('Zip code is required'),
-    avatarUrl: Yup.mixed().nullable().required('Avatar is required'),
-    // not required
-    status: Yup.string(),
-    isVerified: Yup.boolean(),
-  });
-
+    username: Yup.string().notRequired(),
+    password: Yup.string().notRequired(),
+    gender: Yup.number().oneOf([0, 1, 2], 'Invalid gender').notRequired(),
+    birthday: Yup.date().nullable().max(new Date(), 'Birthday cannot be in the future').notRequired(),
+    region: Yup.string().matches(/^[A-Za-z]+-[A-Za-z]+$/, 'Region must be in the format: Province-City').notRequired(),
+  });  
+  
   const defaultValues = useMemo(
     () => ({
-      name: currentUser?.name || '',
-      city: currentUser?.city || '',
-      role: currentUser?.role || '',
-      email: currentUser?.email || '',
-      state: currentUser?.state || '',
-      status: currentUser?.status || '',
-      address: currentUser?.address || '',
-      country: currentUser?.country || '',
-      zipCode: currentUser?.zipCode || '',
-      company: currentUser?.company || '',
-      avatarUrl: currentUser?.avatarUrl || null,
-      phoneNumber: currentUser?.phoneNumber || '',
-      isVerified: currentUser?.isVerified || true,
+      username: currentUser?.username || '',
+      password: '', // Password is optional and should not be pre-filled
+      gender: currentUser?.gender || 2, // Default to 'prefer-not-to-say' if not provided
+      birthday: currentUser?.birthday || null, // Use null for optional date fields
+      region: currentUser?.region || '',
     }),
     [currentUser]
   );
-
+  
   const methods = useForm({
     resolver: yupResolver(NewUserSchema),
     defaultValues,
@@ -91,16 +89,14 @@ export default function UserNewEditForm({ currentUser }) {
 
   const onSubmit = handleSubmit(async (data) => {
     try {
-      await new Promise((resolve) => setTimeout(resolve, 500));
+      await handleEditUser(currentUser.id, data);
       reset();
-      enqueueSnackbar(currentUser ? 'Update success!' : 'Create success!');
-      router.push(paths.dashboard.user.list);
-      console.info('DATA', data);
+      onClose();
     } catch (error) {
       console.error(error);
     }
   });
-
+  
   const handleDrop = useCallback(
     (acceptedFiles) => {
       const file = acceptedFiles[0];
@@ -188,30 +184,7 @@ export default function UserNewEditForm({ currentUser }) {
                 sx={{ mx: 0, mb: 3, width: 1, justifyContent: 'space-between' }}
               />
             )}
-
-            <RHFSwitch
-              name="isVerified"
-              labelPlacement="start"
-              label={
-                <>
-                  <Typography variant="subtitle2" sx={{ mb: 0.5 }}>
-                    Email Verified
-                  </Typography>
-                  <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                    Disabling this will automatically send the user a verification email
-                  </Typography>
-                </>
-              }
-              sx={{ mx: 0, width: 1, justifyContent: 'space-between' }}
-            />
-
-            {currentUser && (
-              <Stack justifyContent="center" alignItems="center" sx={{ mt: 3 }}>
-                <Button variant="soft" color="error">
-                  Delete User
-                </Button>
-              </Stack>
-            )}
+            
           </Card>
         </Grid>
 
@@ -226,26 +199,53 @@ export default function UserNewEditForm({ currentUser }) {
                 sm: 'repeat(2, 1fr)',
               }}
             >
-              <RHFTextField name="name" label="Full Name" />
-              <RHFTextField name="email" label="Email Address" />
-              <RHFTextField name="phoneNumber" label="Phone Number" />
+              <RHFTextField name="username" label="Username" />
+              <RHFTextField name="password" label="Password" type="password" />
 
-              <RHFAutocomplete
-                name="country"
-                type="country"
-                label="Country"
-                placeholder="Choose a country"
-                fullWidth
-                options={countries.map((option) => option.label)}
-                getOptionLabel={(option) => option}
+              <Controller
+                name="gender"
+                control={control}
+                render={({ field }) => (
+                  <RHFAutocomplete
+                    {...field}
+                    type="number"
+                    label="Gender"
+                    placeholder="Select gender"
+                    options={genderOptions}
+                    getOptionLabel={(option) => option.label}
+                    renderOption={(props, option) => (
+                      <Box component="li" {...props}>
+                        {option.label}
+                      </Box>
+                    )}
+                  />
+                )}
               />
 
-              <RHFTextField name="state" label="State/Region" />
-              <RHFTextField name="city" label="City" />
-              <RHFTextField name="address" label="Address" />
-              <RHFTextField name="zipCode" label="Zip/Code" />
-              <RHFTextField name="company" label="Company" />
-              <RHFTextField name="role" label="Role" />
+              {/* Birthday */}
+              <Controller
+                name="birthday"
+                control={control}
+                render={({ field }) => (
+                  <RHFTextField
+                    {...field}
+                    type="date"
+                    label="Birthday"
+                    InputLabelProps={{
+                      shrink: true,
+                    }}
+                  />
+                )}
+              />
+
+              {/* Region */}
+              <Controller
+                name="region"
+                control={control}
+                render={({ field }) => (
+                  <RHFTextField {...field} label="Region" placeholder="Province-City" />
+                )}
+              />
             </Box>
 
             <Stack alignItems="flex-end" sx={{ mt: 3 }}>

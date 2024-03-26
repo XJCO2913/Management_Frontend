@@ -15,7 +15,7 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 
 import { countries } from 'src/assets/data';
-import { USER_STATUS_OPTIONS } from 'src/_mock';
+import { apiInstance, userEndpoints } from 'src/apis';
 
 import { useSnackbar } from 'src/components/snackbar';
 import FormProvider, { RHFSelect, RHFTextField, RHFAutocomplete } from 'src/components/hook-form';
@@ -25,37 +25,24 @@ import FormProvider, { RHFSelect, RHFTextField, RHFAutocomplete } from 'src/comp
 export default function UserQuickEditForm({ currentUser, open, onClose }) {
   const { enqueueSnackbar } = useSnackbar();
 
-  const NewUserSchema = Yup.object().shape({
-    name: Yup.string().required('Name is required'),
-    email: Yup.string().required('Email is required').email('Email must be a valid email address'),
-    phoneNumber: Yup.string().required('Phone number is required'),
-    address: Yup.string().required('Address is required'),
-    country: Yup.string().required('Country is required'),
-    company: Yup.string().required('Company is required'),
-    state: Yup.string().required('State is required'),
-    city: Yup.string().required('City is required'),
-    role: Yup.string().required('Role is required'),
+  const EditUserSchema = Yup.object().shape({
+    username: Yup.string(),
+    password: Yup.string(),
+    gender: Yup.mixed().oneOf([0, 1, 2]),
+    birthday: Yup.date(),
+    region: Yup.string(),
   });
 
-  const defaultValues = useMemo(
-    () => ({
-      name: currentUser?.name || '',
-      email: currentUser?.email || '',
-      phoneNumber: currentUser?.phoneNumber || '',
-      address: currentUser?.address || '',
-      country: currentUser?.country || '',
-      state: currentUser?.state || '',
-      city: currentUser?.city || '',
-      zipCode: currentUser?.zipCode || '',
-      status: currentUser?.status,
-      company: currentUser?.company || '',
-      role: currentUser?.role || '',
-    }),
-    [currentUser]
-  );
+  const defaultValues = useMemo(() => ({
+    username: currentUser?.username || '',
+    password: '', 
+    gender: currentUser?.gender, 
+    birthday: currentUser?.birthday || '',
+    region: currentUser?.region || '',
+  }), [currentUser]);
 
   const methods = useForm({
-    resolver: yupResolver(NewUserSchema),
+    resolver: yupResolver(EditUserSchema),
     defaultValues,
   });
 
@@ -67,20 +54,20 @@ export default function UserQuickEditForm({ currentUser, open, onClose }) {
 
   const onSubmit = handleSubmit(async (data) => {
     try {
-      await new Promise((resolve) => setTimeout(resolve, 500));
-      reset();
-      onClose();
-      enqueueSnackbar('Update success!');
-      console.info('DATA', data);
+      await apiInstance(userEndpoints.editUserById(currentUser.id, data));
+      reset(); // Reset the form
+      onClose(); // Close the form dialog
+      enqueueSnackbar('User updated successfully!', { variant: 'success' });
     } catch (error) {
       console.error(error);
+      enqueueSnackbar('Error updating user', { variant: 'error' });
     }
   });
 
   return (
     <Dialog
       fullWidth
-      maxWidth={false}
+      maxWidth="sm"
       open={open}
       onClose={onClose}
       PaperProps={{
@@ -89,59 +76,62 @@ export default function UserQuickEditForm({ currentUser, open, onClose }) {
     >
       <FormProvider methods={methods} onSubmit={onSubmit}>
         <DialogTitle>Quick Update</DialogTitle>
-
         <DialogContent>
-          <Alert variant="outlined" severity="info" sx={{ mb: 3 }}>
-            Account is waiting for confirmation
-          </Alert>
-
           <Box
-            rowGap={3}
-            columnGap={2}
-            display="grid"
-            gridTemplateColumns={{
-              xs: 'repeat(1, 1fr)',
-              sm: 'repeat(2, 1fr)',
+            component="form"
+            noValidate
+            autoComplete="off"
+            onSubmit={onSubmit}
+            sx={{
+              '& .MuiTextField-root': { m: 1 },
+              '& .MuiFormControl-root': { m: 1 },
             }}
           >
-            <RHFSelect name="status" label="Status">
-              {USER_STATUS_OPTIONS.map((status) => (
-                <MenuItem key={status.value} value={status.value}>
-                  {status.label}
-                </MenuItem>
-              ))}
-            </RHFSelect>
-
-            <Box sx={{ display: { xs: 'none', sm: 'block' } }} />
-
-            <RHFTextField name="name" label="Full Name" />
-            <RHFTextField name="email" label="Email Address" />
-            <RHFTextField name="phoneNumber" label="Phone Number" />
-
-            <RHFAutocomplete
-              name="country"
-              type="country"
-              label="Country"
-              placeholder="Choose a country"
+            <RHFTextField
+              name="username"
+              label="Username"
               fullWidth
-              options={countries.map((option) => option.label)}
-              getOptionLabel={(option) => option}
+              variant="outlined"
             />
-
-            <RHFTextField name="state" label="State/Region" />
-            <RHFTextField name="city" label="City" />
-            <RHFTextField name="address" label="Address" />
-            <RHFTextField name="zipCode" label="Zip/Code" />
-            <RHFTextField name="company" label="Company" />
-            <RHFTextField name="role" label="Role" />
+            <RHFTextField
+              name="password"
+              label="Password"
+              fullWidth
+              type="password"
+              variant="outlined"
+              autoComplete="new-password"
+              helperText={{
+                message: "Leave blank if you do not wish to change the password",
+                error: false // Assuming this is how your custom RHFTextField expects it
+              }}
+            />
+            <RHFSelect name="gender" label="Gender" fullWidth>
+              <MenuItem value={0}>Male</MenuItem>
+              <MenuItem value={1}>Female</MenuItem>
+              <MenuItem value={2}>Prefer not to say</MenuItem>
+            </RHFSelect>
+            <RHFTextField
+              name="birthday"
+              label="Birthday"
+              fullWidth
+              type="date"
+              InputLabelProps={{
+                shrink: true,
+              }}
+              variant="outlined"
+            />
+            <RHFTextField
+              name="region"
+              label="Region"
+              fullWidth
+              variant="outlined"
+            />
           </Box>
         </DialogContent>
-
         <DialogActions>
           <Button variant="outlined" onClick={onClose}>
             Cancel
           </Button>
-
           <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
             Update
           </LoadingButton>
@@ -152,7 +142,7 @@ export default function UserQuickEditForm({ currentUser, open, onClose }) {
 }
 
 UserQuickEditForm.propTypes = {
-  open: PropTypes.bool,
-  onClose: PropTypes.func,
-  currentUser: PropTypes.object,
+  open: PropTypes.bool.isRequired,
+  onClose: PropTypes.func.isRequired,
+  currentUser: PropTypes.object.isRequired,
 };
