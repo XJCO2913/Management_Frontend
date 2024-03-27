@@ -8,24 +8,19 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import Stack from '@mui/material/Stack';
-import Button from '@mui/material/Button';
 import Switch from '@mui/material/Switch';
 import Grid from '@mui/material/Unstable_Grid2';
 import Typography from '@mui/material/Typography';
 import LoadingButton from '@mui/lab/LoadingButton';
 import FormControlLabel from '@mui/material/FormControlLabel';
 
-import { paths } from 'src/routes/paths';
-import { useRouter } from 'src/routes/hooks';
+import { apiInstance, userEndpoints } from 'src/apis';
 
 import { fData } from 'src/utils/format-number';
-
-import { countries } from 'src/assets/data';
 
 import Label from 'src/components/label';
 import { useSnackbar } from 'src/components/snackbar';
 import FormProvider, {
-  RHFSwitch,
   RHFTextField,
   RHFUploadAvatar,
   RHFAutocomplete,
@@ -35,8 +30,7 @@ import FormProvider, {
 export default function UserNewEditForm({ currentUser }) {
   const { enqueueSnackbar } = useSnackbar();
   const [userData, setUserData] = useState([]);
-  const router = useRouter();
-  
+
   const handleEditUser = async (userId, userData) => {
     try {
       const response = await apiInstance(userEndpoints.editUserById(userId, userData));
@@ -58,8 +52,8 @@ export default function UserNewEditForm({ currentUser }) {
     gender: Yup.number().oneOf([0, 1, 2], 'Invalid gender').notRequired(),
     birthday: Yup.date().nullable().max(new Date(), 'Birthday cannot be in the future').notRequired(),
     region: Yup.string().matches(/^[A-Za-z]+-[A-Za-z]+$/, 'Region must be in the format: Province-City').notRequired(),
-  });  
-  
+  });
+
   const defaultValues = useMemo(
     () => ({
       username: currentUser?.username || '',
@@ -70,7 +64,7 @@ export default function UserNewEditForm({ currentUser }) {
     }),
     [currentUser]
   );
-  
+
   const methods = useForm({
     resolver: yupResolver(NewUserSchema),
     defaultValues,
@@ -87,16 +81,22 @@ export default function UserNewEditForm({ currentUser }) {
 
   const values = watch();
 
+  // gender option
+  const genderOptions = [
+    { label: "Male", value: 0 },
+    { label: "Female", value: 1 },
+    { label: "Prefer not to say", value: 2 },
+  ];
+
   const onSubmit = handleSubmit(async (data) => {
     try {
       await handleEditUser(currentUser.id, data);
       reset();
-      onClose();
     } catch (error) {
       console.error(error);
     }
   });
-  
+
   const handleDrop = useCallback(
     (acceptedFiles) => {
       const file = acceptedFiles[0];
@@ -184,7 +184,7 @@ export default function UserNewEditForm({ currentUser }) {
                 sx={{ mx: 0, mb: 3, width: 1, justifyContent: 'space-between' }}
               />
             )}
-            
+
           </Card>
         </Grid>
 

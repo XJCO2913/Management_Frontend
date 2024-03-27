@@ -13,6 +13,11 @@ import NavItem from './nav-item';
 export default function NavList({ data, depth, slotProps }) {
   const pathname = usePathname();
 
+  if (typeof data.path !== 'string') {
+    console.log('Expected "path" to be a string, but received:', data.path);
+    // 可以在这里进行适当的处理或者返回
+  }
+
   const active = useActiveLink(data.path, !!data.children);
 
   const [openMenu, setOpenMenu] = useState(active);
@@ -34,6 +39,7 @@ export default function NavList({ data, depth, slotProps }) {
     setOpenMenu(false);
   }, []);
 
+ 
   return (
     <>
       <NavItem

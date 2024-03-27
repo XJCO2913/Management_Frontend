@@ -30,11 +30,8 @@ export const paths = {
   components: '/components',
  
   user: {
-    list: "/user/list",
+    list: '/user/list',
     edit: (id) => `/user/${id}/edit`,
-    // demo: {
-    //   edit: `/user/${id}/edit`,
-    // },
   },
   // DASHBOARD
   dashboard: {

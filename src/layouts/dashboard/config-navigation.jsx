@@ -89,6 +89,7 @@ export function useNavData() {
           },
         ],
       },
+      
 
       // MANAGEMENT
       // ----------------------------------------------------------------------
@@ -102,7 +103,7 @@ export function useNavData() {
             icon: ICONS.user,
             children: [
               { title: t('list'), path: paths.user.list },
-              { title: t('edit'), path: paths.user.edit },
+              // { title: t('edit'), path: paths.user.edit },
             ],
           },
 
