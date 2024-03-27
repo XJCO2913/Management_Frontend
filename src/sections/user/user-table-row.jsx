@@ -24,7 +24,7 @@ export default function UserTableRow({ row, selected, onEditRow, onSelectRow, on
   if (!row) {
     return null; 
   }
-  console.log(row.userId)
+  // console.log(row.userId)
 
   const { username, avatarUrl, gender, birthday, region, membershipTime } = row;
 
@@ -80,7 +80,7 @@ export default function UserTableRow({ row, selected, onEditRow, onSelectRow, on
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{region}</TableCell>
 
         <TableCell align="right" sx={{ px: 1, whiteSpace: 'nowrap' }}>
-          <Tooltip title="Quick Edit" placement="top" arrow>
+          <Tooltip title="Edit User" placement="top" arrow>
             <IconButton color={quickEdit.value ? 'inherit' : 'default'} onClick={onEditRow}>
               <Iconify icon="solar:pen-bold" />
             </IconButton>

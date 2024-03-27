@@ -7,7 +7,7 @@ export const HOST_API = 'http://43.136.232.116:5000/test';
 export const apiInstance = axios.create({
   baseURL: HOST_API,
   headers: {
-    Authorization: `Bearer ${'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MTE0NTkxNzksImlzQWRtaW4iOnRydWUsInVzZXJJRCI6IjEyMzEyMzEyMyJ9.5JU3qg4korx2cgjCxa3MOOgK4iZfufnzvHwnrnH7wpY'}`, 
+    Authorization: `Bearer ${'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MTE2MTUzMjQsImlzQWRtaW4iOnRydWUsInVzZXJJRCI6IjEyMzEyMzEyMyJ9.BYhza65O16haYd4_1Z312LzTgCwDeGVorKmNUNqmtgY'}`, 
   }
 });
 

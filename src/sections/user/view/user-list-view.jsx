@@ -178,10 +178,11 @@ export default function UserListView() {
   };
 
   const [selectedUserIds, setSelectedUserIds] = useState([]);
-
    
-  const handleEditRow = useCallback((userId) => () => {
+  const handleEditRow = useCallback(
+    async (userId) => {
     router.push(paths.user.edit(userId)); 
+    console.log(paths.user.edit(userId));
   }, [router]);
 
   const handleDeleteRow = useCallback(
@@ -213,8 +214,8 @@ export default function UserListView() {
         enqueueSnackbar('User banned successfully!', { variant: 'success' });
       }
     } catch (error) {
-      console.error('Error banning user:', error);
-      enqueueSnackbar('Error banning user', { variant: 'error' });
+      const errorMessage = error.message || 'Error banning users';
+      enqueueSnackbar(errorMessage, { variant: 'error' });
     }
   }, [enqueueSnackbar, setUserData]);
   
@@ -230,8 +231,8 @@ export default function UserListView() {
         enqueueSnackbar('User unbanned successfully!', { variant: 'success' });
       }
     } catch (error) {
-      console.error('Error unbanning user:', error);
-      enqueueSnackbar('Error unbanning user', { variant: 'error' });
+      const errorMessage = error.message || 'Error unbanning users';
+      enqueueSnackbar(errorMessage, { variant: 'error' });
     }
   }, [enqueueSnackbar, setUserData]);  
 
