@@ -11,6 +11,7 @@ import { useSettingsContext } from 'src/components/settings';
 import CustomBreadcrumbs from 'src/components/custom-breadcrumbs';
 
 import UserNewEditForm from '../user-new-edit-form';
+import { apiInstance, userEndpoints } from 'src/apis';
 
 // ----------------------------------------------------------------------
 
@@ -60,7 +61,7 @@ export default function UserEditView() {
         }}
       />
 
-      <UserNewEditForm currentUser={currentUser} />
+      <UserNewEditForm userId={userId} currentUser={currentUser} />
     </Container>
   );
 }

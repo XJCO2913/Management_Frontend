@@ -182,7 +182,6 @@ export default function UserListView() {
   const handleEditRow = useCallback(
     async (userId) => {
     router.push(paths.user.edit(userId)); 
-    console.log(paths.user.edit(userId));
   }, [router]);
 
   const handleDeleteRow = useCallback(

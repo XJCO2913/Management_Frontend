@@ -1,7 +1,7 @@
 
 import * as Yup from 'yup';
 import PropTypes from 'prop-types';
-import { useMemo, useCallback, useState } from 'react';
+import React, { useMemo, useCallback, useState, useEffect } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 
@@ -13,7 +13,6 @@ import Grid from '@mui/material/Unstable_Grid2';
 import Typography from '@mui/material/Typography';
 import LoadingButton from '@mui/lab/LoadingButton';
 import FormControlLabel from '@mui/material/FormControlLabel';
-
 import { apiInstance, userEndpoints } from 'src/apis';
 
 import { fData } from 'src/utils/format-number';
@@ -27,12 +26,15 @@ import FormProvider, {
 } from 'src/components/hook-form';
 
 // ----------------------------------------------------------------------
-export default function UserNewEditForm({ currentUser }) {
+export default function UserNewEditForm({ userId, currentUser }) {
   const { enqueueSnackbar } = useSnackbar();
   const [userData, setUserData] = useState([]);
 
-  const handleEditUser = async (userId, userData) => {
+  const handleEditUser = async (userData) => {
     try {
+      
+      console.log(userId);
+      console.log(userData);
       const response = await apiInstance(userEndpoints.editUserById(userId, userData));
       console.log('Edit user response:', response);
 
@@ -59,7 +61,7 @@ export default function UserNewEditForm({ currentUser }) {
       username: currentUser?.username || '',
       password: '', // Password is optional and should not be pre-filled
       gender: currentUser?.gender || 2, // Default to 'prefer-not-to-say' if not provided
-      birthday: currentUser?.birthday || null, // Use null for optional date fields
+      birthday: currentUser?.birthday || '', // Use null for optional date fields
       region: currentUser?.region || '',
     }),
     [currentUser]
@@ -79,6 +81,20 @@ export default function UserNewEditForm({ currentUser }) {
     formState: { isSubmitting },
   } = methods;
 
+  useEffect(() => {
+    if (currentUser && currentUser.Data) {
+      const userData = currentUser.Data;
+      const formValues = {
+        username: userData.username || '',
+        password: '',
+        gender: userData.gender || 2,
+        birthday: userData.birthday || '',
+        region: userData.region || '',
+      };
+      reset(formValues);
+    }
+  }, [currentUser, reset]);
+  
   const values = watch();
 
   // gender option
@@ -88,15 +104,23 @@ export default function UserNewEditForm({ currentUser }) {
     { label: "Prefer not to say", value: 2 },
   ];
 
-  const onSubmit = handleSubmit(async (data) => {
-    try {
-      await handleEditUser(currentUser.id, data);
-      reset();
-    } catch (error) {
-      console.error(error);
-    }
+  const onSubmit = handleSubmit(async (formData) => {
+    const formattedBirthday = formData.birthday instanceof Date 
+      ? `${formData.birthday.getFullYear()}-${String(formData.birthday.getMonth() + 1).padStart(2, '0')}-${String(formData.birthday.getDate()).padStart(2, '0')}`
+      : formData.birthday;
+  
+    const dataToSend = {
+      username: formData.username,
+      password: formData.password,
+      gender: typeof formData.gender === 'number' ? formData.gender : parseInt(formData.gender, 10),
+      birthday: formattedBirthday,
+      region: formData.region,
+    };
+    // console.log('Sending to backend:', dataToSend); 
+    await handleEditUser(dataToSend);
   });
-
+  
+  
   const handleDrop = useCallback(
     (acceptedFiles) => {
       const file = acceptedFiles[0];
@@ -208,16 +232,12 @@ export default function UserNewEditForm({ currentUser }) {
                 render={({ field }) => (
                   <RHFAutocomplete
                     {...field}
-                    type="number"
                     label="Gender"
                     placeholder="Select gender"
                     options={genderOptions}
-                    getOptionLabel={(option) => option.label}
-                    renderOption={(props, option) => (
-                      <Box component="li" {...props}>
-                        {option.label}
-                      </Box>
-                    )}
+                    getOptionLabel={(option) => option ? option.label : ''}
+                    isOptionEqualToValue={(option, value) => option.value === value.value}
+                    value={genderOptions.find(option => option.value === field.value) || genderOptions[2]}
                   />
                 )}
               />
