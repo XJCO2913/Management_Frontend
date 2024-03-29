@@ -30,30 +30,57 @@ export default function UserNewEditForm({ userId, currentUser }) {
   const { enqueueSnackbar } = useSnackbar();
   const [userData, setUserData] = useState([]);
 
-  const handleEditUser = async (userData) => {
+  const handleEditUser = async (userId, changes) => {
     try {
+      const { url, method } = userEndpoints.editUserById(userId, changes);
       
-      console.log(userId);
-      console.log(userData);
-      const response = await apiInstance(userEndpoints.editUserById(userId, userData));
+      // console.log(`URL: ${url}, Method: ${method}`);
+      const response = await apiInstance[method](url, changes);
+      
       console.log('Edit user response:', response);
-
       enqueueSnackbar('User updated successfully!', { variant: 'success' });
-      setUserData((currentUsers) =>
-        currentUsers.map((user) => (user.userId === userId ? { ...user, ...userData } : user))
-      );
+  
     } catch (error) {
       console.error('Error editing user:', error);
       enqueueSnackbar('Error editing user', { variant: 'error' });
     }
   };
-
+  const formatDate = (date) => {
+    if (!(date instanceof Date)) return date; // 如果不是Date实例，直接返回原值
+  
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+  
+    return `${year}-${month}-${day}`;
+  };
+  
+  const hasChanged = (original, current) => {
+    const originalData = original?.Data || {};
+    const changes = {};
+  
+    Object.keys(current).forEach(key => {
+      // 处理birthday字段的特殊情况
+      let currentValue = current[key];
+      if (key === 'birthday' && currentValue) {
+        currentValue = formatDate(currentValue);
+      }
+  
+      if (currentValue !== undefined && originalData[key] !== currentValue) {
+        changes[key] = currentValue;
+      }
+    });
+  
+    console.log("Changes detected: ", changes);
+    return changes;
+  };
+  
   const NewUserSchema = Yup.object().shape({
-    username: Yup.string().notRequired(),
-    password: Yup.string().notRequired(),
-    gender: Yup.number().oneOf([0, 1, 2], 'Invalid gender').notRequired(),
+    username: Yup.string(),
+    password: Yup.string(),
+    gender: Yup.number().oneOf([0, 1, 2], 'Invalid gender'),
     birthday: Yup.date().nullable().max(new Date(), 'Birthday cannot be in the future').notRequired(),
-    region: Yup.string().matches(/^[A-Za-z]+-[A-Za-z]+$/, 'Region must be in the format: Province-City').notRequired(),
+    region: Yup.string(),
   });
 
   const defaultValues = useMemo(
@@ -105,21 +132,17 @@ export default function UserNewEditForm({ userId, currentUser }) {
   ];
 
   const onSubmit = handleSubmit(async (formData) => {
-    const formattedBirthday = formData.birthday instanceof Date 
-      ? `${formData.birthday.getFullYear()}-${String(formData.birthday.getMonth() + 1).padStart(2, '0')}-${String(formData.birthday.getDate()).padStart(2, '0')}`
-      : formData.birthday;
-  
-    const dataToSend = {
-      username: formData.username,
-      password: formData.password,
-      gender: typeof formData.gender === 'number' ? formData.gender : parseInt(formData.gender, 10),
-      birthday: formattedBirthday,
-      region: formData.region,
-    };
-    // console.log('Sending to backend:', dataToSend); 
-    await handleEditUser(dataToSend);
+    
+    console.log("newUser: ", formData);
+    console.log("oldUser: ", currentUser);
+    const changes = hasChanged(currentUser, formData);
+    
+    if (Object.keys(changes).length > 0) {
+      await handleEditUser(userId, changes);
+    } else {
+      enqueueSnackbar('No changes detected', { variant: 'info' });
+    }
   });
-  
   
   const handleDrop = useCallback(
     (acceptedFiles) => {
@@ -232,15 +255,21 @@ export default function UserNewEditForm({ userId, currentUser }) {
                 render={({ field }) => (
                   <RHFAutocomplete
                     {...field}
+                    onChange={(event, item) => {
+                      field.onChange(item ? item.value : '');
+                    }}
                     label="Gender"
                     placeholder="Select gender"
                     options={genderOptions}
                     getOptionLabel={(option) => option ? option.label : ''}
-                    isOptionEqualToValue={(option, value) => option.value === value.value}
-                    value={genderOptions.find(option => option.value === field.value) || genderOptions[2]}
+                    // 注意这里如何处理 value，确保它匹配当前字段的值
+                    value={genderOptions.find(option => option.value === field.value) || ''}
+                    // 更新isOptionEqualToValue来比较选项值和当前字段值
+                    isOptionEqualToValue={(option, value) => option.value === value}
                   />
                 )}
               />
+
 
               {/* Birthday */}
               <Controller
