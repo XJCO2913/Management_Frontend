@@ -21,7 +21,7 @@ const userListRoute = {
 };
 
 const userEditRoute = {
-  path: 'edit',
+  path: ':userId/edit',
   element: (
     <Suspense fallback={<SplashScreen />}>
        <DashboardLayout >
