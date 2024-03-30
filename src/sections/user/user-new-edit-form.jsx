@@ -154,7 +154,8 @@ export default function UserNewEditForm({ userId, currentUser }) {
         return; 
     }
 
-    await handleEditUser(userId, changes);
+    if (infoChanged)
+      await handleEditUser(userId, changes);
     
     if (statusChanged) {
         if (isBanned) {
