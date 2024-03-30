@@ -117,6 +117,8 @@ export default function UserNewEditForm({ userId, currentUser }) {
     formState: { isSubmitting },
   } = methods;
 
+  const [isBanned, setIsBanned] = useState(false);
+
   useEffect(() => {
     if (currentUser && currentUser.Data) {
       const userData = currentUser.Data;
@@ -147,8 +149,15 @@ export default function UserNewEditForm({ userId, currentUser }) {
     
     if (Object.keys(changes).length > 0) {
       await handleEditUser(userId, changes);
-    } else {
-      enqueueSnackbar('No changes detected', { variant: 'info' });
+    }
+    if (isBanned !== currentUser?.isBanned) {
+      if (isBanned) {
+        await apiInstance.post(userEndpoints.banUserById(userId));
+        enqueueSnackbar('User banned successfully', { variant: 'success' });
+      } else {
+        await apiInstance.post(userEndpoints.unbanUserById(userId));
+        enqueueSnackbar('User unbanned successfully', { variant: 'success' });
+      }
     }
   });
   
@@ -166,6 +175,21 @@ export default function UserNewEditForm({ userId, currentUser }) {
     },
     [setValue]
   );
+
+  useEffect(() => {
+    const checkUserStatus = async () => {
+      try {
+        const response = await apiInstance.get(userEndpoints.checkUserStatusById(userId));
+        // console.log('isban?:', response.Data.isBanned);
+        setIsBanned(response.data.Data.isBanned);
+      } catch (error) {
+        console.error('Error fetching user status:', error);
+        enqueueSnackbar('Error fetching user status', { variant: 'error' });
+      }
+    };
+
+    checkUserStatus();
+  }, [userId, enqueueSnackbar]);
 
   return (
     <FormProvider methods={methods} onSubmit={onSubmit}>
@@ -210,32 +234,15 @@ export default function UserNewEditForm({ userId, currentUser }) {
 
             {currentUser && (
               <FormControlLabel
-                labelPlacement="start"
                 control={
-                  <Controller
-                    name="status"
-                    control={control}
-                    render={({ field }) => (
-                      <Switch
-                        {...field}
-                        checked={field.value !== 'active'}
-                        onChange={(event) =>
-                          field.onChange(event.target.checked ? 'banned' : 'active')
-                        }
-                      />
-                    )}
+                  <Switch
+                    checked={isBanned ?? false} 
+                    onChange={(e) => setIsBanned(e.target.checked)}
                   />
                 }
-                label={
-                  <>
-                    <Typography variant="subtitle2" sx={{ mb: 0.5 }}>
-                      Banned
-                    </Typography>
-                    <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                      Apply disable account
-                    </Typography>
-                  </>
-                }
+                
+                label={isBanned ? "Unban User" : "Ban User"}
+                labelPlacement="start"
                 sx={{ mx: 0, mb: 3, width: 1, justifyContent: 'space-between' }}
               />
             )}
