@@ -40,16 +40,18 @@ export default function UserNewEditForm({ userId, currentUser }) {
       console.log('Edit user response:', response);
       enqueueSnackbar('User updated successfully!', { variant: 'success' });
       
-      navigate(paths.user.list);  
     } catch (error) {
       console.error('Error editing user:', error);
-      enqueueSnackbar('Error editing user', { variant: 'error' });
+      if (error.response.data.status_msg)
+        enqueueSnackbar(error.response.data.status_msg, { variant: 'warning' });
+      else
+        enqueueSnackbar('Error editing user', { variant: 'error' });
     }
   };
   
   
   const formatDate = (date) => {
-    if (!(date instanceof Date)) return date; // 如果不是Date实例，直接返回原值
+    if (!(date instanceof Date)) return date; 
   
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, '0');
@@ -71,7 +73,6 @@ export default function UserNewEditForm({ userId, currentUser }) {
         // If currentValue is an empty string or null, set it to an empty string
         currentValue = '';
       }
-
   
       if (currentValue !== undefined && originalData[key] !== currentValue) {
         changes[key] = currentValue;
@@ -142,23 +143,30 @@ export default function UserNewEditForm({ userId, currentUser }) {
   ];
 
   const onSubmit = handleSubmit(async (formData) => {
-    
-    console.log("newUser: ", formData);
-    console.log("oldUser: ", currentUser);
     const changes = hasChanged(currentUser, formData);
+    const response = await apiInstance.get(userEndpoints.checkUserStatusById(userId));
     
-    if (Object.keys(changes).length > 0) {
-      await handleEditUser(userId, changes);
+    const statusChanged = isBanned !== response.data.Data.isBanned;
+    const infoChanged = Object.keys(changes).length > 0;
+
+    if (!infoChanged && !statusChanged) {
+        enqueueSnackbar('No changes to user information', { variant: 'warning' });
+        return; 
     }
-    if (isBanned !== currentUser?.isBanned) {
-      if (isBanned) {
-        await apiInstance.post(userEndpoints.banUserById(userId));
-        enqueueSnackbar('User banned successfully', { variant: 'success' });
-      } else {
-        await apiInstance.post(userEndpoints.unbanUserById(userId));
-        enqueueSnackbar('User unbanned successfully', { variant: 'success' });
+
+    await handleEditUser(userId, changes);
+    
+    if (statusChanged) {
+        if (isBanned) {
+            await apiInstance.post(userEndpoints.banUserById(userId));
+            enqueueSnackbar('User banned successfully', { variant: 'success' });
+        } else {
+            await apiInstance.post(userEndpoints.unbanUserById(userId));
+            enqueueSnackbar('User unbanned successfully', { variant: 'success' });
+        }
       }
-    }
+
+    navigate(paths.user.list);  
   });
   
   const handleDrop = useCallback(
