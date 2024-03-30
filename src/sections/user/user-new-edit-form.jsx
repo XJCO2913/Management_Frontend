@@ -60,11 +60,15 @@ export default function UserNewEditForm({ userId, currentUser }) {
     const changes = {};
   
     Object.keys(current).forEach(key => {
-      // 处理birthday字段的特殊情况
       let currentValue = current[key];
+      // Handling birthday field specifically
       if (key === 'birthday' && currentValue) {
         currentValue = formatDate(currentValue);
+      } else if (key === 'birthday' && !currentValue) {
+        // If currentValue is an empty string or null, set it to an empty string
+        currentValue = '';
       }
+
   
       if (currentValue !== undefined && originalData[key] !== currentValue) {
         changes[key] = currentValue;
@@ -77,16 +81,18 @@ export default function UserNewEditForm({ userId, currentUser }) {
   
   const NewUserSchema = Yup.object().shape({
     username: Yup.string(),
-    password: Yup.string(),
     gender: Yup.number().oneOf([0, 1, 2], 'Invalid gender'),
-    birthday: Yup.date().nullable().max(new Date(), 'Birthday cannot be in the future').notRequired(),
+    // Modify birthday validation
+    birthday: Yup.date().nullable(true).transform((value, originalValue) => {
+      return originalValue === '' ? null : value;
+    }).max(new Date(), 'Birthday cannot be in the future').notRequired(),
     region: Yup.string(),
   });
+  
 
   const defaultValues = useMemo(
     () => ({
       username: currentUser?.username || '',
-      password: '', // Password is optional and should not be pre-filled
       gender: currentUser?.gender || 2, // Default to 'prefer-not-to-say' if not provided
       birthday: currentUser?.birthday || '', // Use null for optional date fields
       region: currentUser?.region || '',
@@ -113,7 +119,6 @@ export default function UserNewEditForm({ userId, currentUser }) {
       const userData = currentUser.Data;
       const formValues = {
         username: userData.username || '',
-        password: '',
         gender: userData.gender || 2,
         birthday: userData.birthday || '',
         region: userData.region || '',
@@ -247,7 +252,6 @@ export default function UserNewEditForm({ userId, currentUser }) {
               }}
             >
               <RHFTextField name="username" label="Username" />
-              <RHFTextField name="password" label="Password" type="password" />
 
               <Controller
                 name="gender"
@@ -262,9 +266,7 @@ export default function UserNewEditForm({ userId, currentUser }) {
                     placeholder="Select gender"
                     options={genderOptions}
                     getOptionLabel={(option) => option ? option.label : ''}
-                    // 注意这里如何处理 value，确保它匹配当前字段的值
                     value={genderOptions.find(option => option.value === field.value) || ''}
-                    // 更新isOptionEqualToValue来比较选项值和当前字段值
                     isOptionEqualToValue={(option, value) => option.value === value}
                   />
                 )}
@@ -280,9 +282,8 @@ export default function UserNewEditForm({ userId, currentUser }) {
                     {...field}
                     type="date"
                     label="Birthday"
-                    InputLabelProps={{
-                      shrink: true,
-                    }}
+                    InputLabelProps={{ shrink: true }}
+                    onChange={(e) => field.onChange(e.target.value || null)}
                   />
                 )}
               />
