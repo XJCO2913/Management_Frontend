@@ -1,4 +1,4 @@
-import { Navigate, useRoutes } from 'react-router-dom';
+import { useRoutes } from 'react-router-dom';
 import DashboardLayout from 'src/layouts/dashboard';
 // import UserListPage from 'src/pages/dashboard/user/list'; 
 import { userRoutes } from './userlist';
@@ -17,10 +17,6 @@ export default function Router() {
         </DashboardLayout>
       ),
     },
-
     ...userRoutes,
-
-    // 无匹配路由时跳转到 404 页面
-    { path: '*', element: <Navigate to="/404" replace /> },
   ]);
 }
