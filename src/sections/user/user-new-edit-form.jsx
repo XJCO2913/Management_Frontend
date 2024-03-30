@@ -2,6 +2,7 @@
 import * as Yup from 'yup';
 import PropTypes from 'prop-types';
 import React, { useMemo, useCallback, useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useForm, Controller } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 
@@ -15,6 +16,7 @@ import LoadingButton from '@mui/lab/LoadingButton';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import { apiInstance, userEndpoints } from 'src/apis';
 
+import { paths } from 'src/routes/paths';
 import { fData } from 'src/utils/format-number';
 
 import Label from 'src/components/label';
@@ -29,22 +31,23 @@ import FormProvider, {
 export default function UserNewEditForm({ userId, currentUser }) {
   const { enqueueSnackbar } = useSnackbar();
   const [userData, setUserData] = useState([]);
+  const navigate = useNavigate();
 
   const handleEditUser = async (userId, changes) => {
     try {
       const { url, method } = userEndpoints.editUserById(userId, changes);
-      
-      // console.log(`URL: ${url}, Method: ${method}`);
       const response = await apiInstance[method](url, changes);
-      
       console.log('Edit user response:', response);
       enqueueSnackbar('User updated successfully!', { variant: 'success' });
-  
+      
+      navigate(paths.user.list);  
     } catch (error) {
       console.error('Error editing user:', error);
       enqueueSnackbar('Error editing user', { variant: 'error' });
     }
   };
+  
+  
   const formatDate = (date) => {
     if (!(date instanceof Date)) return date; // 如果不是Date实例，直接返回原值
   
