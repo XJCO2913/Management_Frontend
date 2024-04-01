@@ -1,7 +1,26 @@
 import React, { useState } from "react";
+import { useAuthContext } from 'src/auth/hooks'
+import { useRouter } from 'src/routes/hooks';
 
 export default function AvatarCard({ avatarUrl, name, description, githubUrl }) {
     const [isLogin, setIsLogin] = useState(false)
+    const [password, setPassword] = useState('')
+    const { login } = useAuthContext()
+    const router = useRouter()
+
+    const handleChange = (e) => {
+        setPassword(e.target.value)
+    }
+
+    const handleLogin = async () => {
+        const res = await login?.(name, password)
+
+        if (res.success) {
+            router.push('/dashboard')
+        } else {
+            alert(res.errMsg)
+        }
+    }
 
     return (
         <div
@@ -21,7 +40,12 @@ export default function AvatarCard({ avatarUrl, name, description, githubUrl }) 
                                 </svg>
                             </button>
 
-                            <input type="password" placeholder="********" className="block w-full py-2.5 text-gray-700 placeholder-gray-400/70 bg-white border border-gray-200 rounded-lg pl-5 pr-11 rtl:pr-5 rtl:pl-11 dark:bg-gray-900 dark:text-gray-300 dark:border-gray-600 focus:border-blue-400 dark:focus:border-blue-300 focus:ring-blue-300 focus:outline-none focus:ring focus:ring-opacity-40" />
+                            <input 
+                                type="password" 
+                                placeholder="Enter password" 
+                                className="block w-full py-2.5 text-gray-700 placeholder-gray-400/70 bg-white border border-gray-200 rounded-lg pl-5 pr-11 rtl:pr-5 rtl:pl-11 dark:bg-gray-900 dark:text-gray-300 dark:border-gray-600 focus:border-blue-400 dark:focus:border-blue-300 focus:ring-blue-300 focus:outline-none focus:ring focus:ring-opacity-40" 
+                                onChange={handleChange}
+                            />
                         </div>
                         <div className="flex items-center justify-between mt-4 space-x-2">
                             <button
@@ -30,7 +54,10 @@ export default function AvatarCard({ avatarUrl, name, description, githubUrl }) 
                             >
                                 Cancel
                             </button>
-                            <button className="px-6 py-2 text-sm font-medium tracking-wide text-white capitalize transition-colors duration-300 transform bg-gray-800 rounded-lg focus:outline-none focus:ring focus:ring-green-300 focus:ring-opacity-50">
+                            <button
+                                className="px-6 py-2 text-sm font-medium tracking-wide text-white capitalize transition-colors duration-300 transform bg-gray-800 rounded-lg focus:outline-none focus:ring focus:ring-green-300 focus:ring-opacity-50"
+                                onClick={handleLogin}
+                            >
                                 Sign In
                             </button>
                         </div>

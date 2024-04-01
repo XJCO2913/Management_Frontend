@@ -4,7 +4,8 @@ import { useMemo, useEffect, useReducer, useCallback } from 'react';
 import axios from 'src/utils/axios';
 
 import { AuthContext } from './auth-context';
-import { setSession, isValidToken } from './utils';
+import { setSession, isValidToken, jwtDecode } from './utils';
+import { adminEndpoints } from '../../../apis';
 
 // ----------------------------------------------------------------------
 /**
@@ -20,25 +21,29 @@ const initialState = {
 };
 
 const reducer = (state, action) => {
-  if (action.type === 'INITIAL') {
+  if (action.type === 'INITIAL')
+  {
     return {
       loading: false,
       user: action.payload.user,
     };
   }
-  if (action.type === 'LOGIN') {
+  if (action.type === 'LOGIN')
+  {
     return {
       ...state,
       user: action.payload.user,
     };
   }
-  if (action.type === 'REGISTER') {
+  if (action.type === 'REGISTER')
+  {
     return {
       ...state,
       user: action.payload.user,
     };
   }
-  if (action.type === 'LOGOUT') {
+  if (action.type === 'LOGOUT')
+  {
     return {
       ...state,
       user: null,
@@ -55,26 +60,28 @@ export function AuthProvider({ children }) {
   const [state, dispatch] = useReducer(reducer, initialState);
 
   const initialize = useCallback(async () => {
-    try {
+    try
+    {
       const accessToken = sessionStorage.getItem(STORAGE_KEY);
 
-      if (accessToken && isValidToken(accessToken)) {
+      if (accessToken && isValidToken(accessToken))
+      {
         setSession(accessToken);
 
-        const response = await axios.get(endpoints.auth.me);
-
-        const { user } = response.data;
+        const payload = jwtDecode(accessToken)
+        const adminID = payload.userID
 
         dispatch({
           type: 'INITIAL',
           payload: {
             user: {
-              ...user,
+              adminID,
               accessToken,
             },
           },
         });
-      } else {
+      } else
+      {
         dispatch({
           type: 'INITIAL',
           payload: {
@@ -82,7 +89,8 @@ export function AuthProvider({ children }) {
           },
         });
       }
-    } catch (error) {
+    } catch (error)
+    {
       console.error(error);
       dispatch({
         type: 'INITIAL',
@@ -98,28 +106,38 @@ export function AuthProvider({ children }) {
   }, [initialize]);
 
   // LOGIN
-  // const login = useCallback(async (email, password) => {
-  //   const data = {
-  //     email,
-  //     password,
-  //   };
+  const login = useCallback(async (name, password) => {
+    const data = {
+      name,
+      password,
+    };
 
-  //   const response = await axios.post(endpoints.auth.login, data);
+    const response = await axios.post(adminEndpoints.auth.login, data);
+    if (response.data.status_code === 0) {
+      const { token, adminID } = response.data.Data;
 
-  //   const { accessToken, user } = response.data;
+      setSession(token);
 
-  //   setSession(accessToken);
+      dispatch({
+        type: 'LOGIN',
+        payload: {
+          user: {
+            adminID,
+            token,
+          },
+        },
+      });
 
-  //   dispatch({
-  //     type: 'LOGIN',
-  //     payload: {
-  //       user: {
-  //         ...user,
-  //         accessToken,
-  //       },
-  //     },
-  //   });
-  // }, []);
+      return {
+        success: true,
+      }
+    } else {
+      return {
+        success: false,
+        errMsg: response.data.Data.status_msg,
+      }
+    }
+  }, []);
 
   // REGISTER
   // const register = useCallback(async (email, password, firstName, lastName) => {
@@ -164,14 +182,14 @@ export function AuthProvider({ children }) {
   const memoizedValue = useMemo(
     () => ({
       user: state.user,
-      method: 'jwt',
       loading: status === 'loading',
       authenticated: status === 'authenticated',
       unauthenticated: status === 'unauthenticated',
       //
+      login,
       logout,
     }),
-    [, logout, state.user, status]
+    [login, logout, state.user, status]
   );
 
   return <AuthContext.Provider value={memoizedValue}>{children}</AuthContext.Provider>;

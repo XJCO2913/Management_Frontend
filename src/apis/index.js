@@ -28,3 +28,9 @@ export const userEndpoints = {
     data: userData,
   }),
 };
+
+export const adminEndpoints = {
+  auth:{
+    login: '/admin/login'
+  }
+};
