@@ -5,25 +5,25 @@ export const Admins = [
     {
         name: "Erfei Yu",
         description: "Golang Developer",
-        avatarUrl: "./yuerfei.JPG",
+        avatarUrl: "/yuerfei.JPG",
         githubUrl: "https://github.com/454270186"
     },
     {
         name: "Deck Wang",
         description: "Backend Developer",
-        avatarUrl: "./deck.JPG",
+        avatarUrl: "/deck.JPG",
         githubUrl: "https://github.com/454270186"
     },
     {
         name: "Bi6666",
         description: "Frontend Developer",
-        avatarUrl: "./bi666.JPG",
+        avatarUrl: "/bi666.JPG",
         githubUrl: "https://github.com/454270186"
     },
     {
         name: "Loda",
         description: "Frontend Developer",
-        avatarUrl: "./loda.JPG",
+        avatarUrl: "/loda.JPG",
         githubUrl: "https://github.com/454270186"
     },
 ]

@@ -19,6 +19,7 @@ import { varHover } from 'src/components/animate';
 import { useSnackbar } from 'src/components/snackbar';
 import CustomPopover, { usePopover } from 'src/components/custom-popover';
 import { Admins } from '../../sections/login/admin-login-view';
+import { useEffect } from 'react';
 
 // ----------------------------------------------------------------------
 
@@ -48,8 +49,9 @@ export default function AccountPopover() {
 
   const popover = usePopover();
 
+  const {user} = useAuthContext()
   const admins = Admins
-  const adminId = 2
+  const adminId = user.adminID
 
   const handleLogout = async () => {
     try {
@@ -66,6 +68,11 @@ export default function AccountPopover() {
     popover.onClose();
     router.push(path);
   };
+
+  useEffect(()=>{
+    console.log("qwe")
+    console.log(admins[adminId-1].avatarUrl)
+  },[])
 
   return (
     <>
