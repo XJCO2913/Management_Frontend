@@ -117,6 +117,8 @@ export function AuthProvider({ children }) {
       const { token, adminID } = response.data.Data;
 
       setSession(token);
+      sessionStorage.removeItem("adminID")
+      sessionStorage.setItem("adminID", adminID)
 
       dispatch({
         type: 'LOGIN',
