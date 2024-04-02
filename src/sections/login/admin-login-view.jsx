@@ -1,17 +1,11 @@
 import React from "react";
 import AvatarCard from "./admin-card-view";
 
-const Admins = [
+export const Admins = [
     {
         name: "Erfei Yu",
         description: "Golang Developer",
         avatarUrl: "./yuerfei.JPG",
-        githubUrl: "https://github.com/454270186"
-    },
-    {
-        name: "Loda",
-        description: "Frontend Developer",
-        avatarUrl: "./loda.JPG",
         githubUrl: "https://github.com/454270186"
     },
     {
@@ -24,6 +18,12 @@ const Admins = [
         name: "Bi6666",
         description: "Frontend Developer",
         avatarUrl: "./bi666.JPG",
+        githubUrl: "https://github.com/454270186"
+    },
+    {
+        name: "Loda",
+        description: "Frontend Developer",
+        avatarUrl: "./loda.JPG",
         githubUrl: "https://github.com/454270186"
     },
 ]

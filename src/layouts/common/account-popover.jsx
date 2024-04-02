@@ -18,6 +18,7 @@ import { useAuthContext } from 'src/auth/hooks';
 import { varHover } from 'src/components/animate';
 import { useSnackbar } from 'src/components/snackbar';
 import CustomPopover, { usePopover } from 'src/components/custom-popover';
+import { Admins } from '../../sections/login/admin-login-view';
 
 // ----------------------------------------------------------------------
 
@@ -41,13 +42,14 @@ const OPTIONS = [
 export default function AccountPopover() {
   const router = useRouter();
 
-  const { user } = useMockedUser();
-
   const { logout } = useAuthContext();
 
   const { enqueueSnackbar } = useSnackbar();
 
   const popover = usePopover();
+
+  const admins = Admins
+  const adminId = 2
 
   const handleLogout = async () => {
     try {
@@ -84,26 +86,26 @@ export default function AccountPopover() {
         }}
       >
         <Avatar
-          src={user?.photoURL}
-          alt={user?.displayName}
+          src={admins[adminId-1].avatarUrl}
+          alt={admins[adminId-1].name}
           sx={{
             width: 36,
             height: 36,
             border: (theme) => `solid 2px ${theme.palette.background.default}`,
           }}
         >
-          {user?.displayName?.charAt(0).toUpperCase()}
+          {admins[adminId-1].name.charAt(0).toUpperCase()}
         </Avatar>
       </IconButton>
 
       <CustomPopover open={popover.open} onClose={popover.onClose} sx={{ width: 200, p: 0 }}>
         <Box sx={{ p: 2, pb: 1.5 }}>
           <Typography variant="subtitle2" noWrap>
-            {user?.displayName}
+            {admins[adminId-1].name}
           </Typography>
 
           <Typography variant="body2" sx={{ color: 'text.secondary' }} noWrap>
-            {user?.email}
+            {admins[adminId-1].description}
           </Typography>
         </Box>
 
