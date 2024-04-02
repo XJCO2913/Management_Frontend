@@ -112,31 +112,40 @@ export function AuthProvider({ children }) {
       password,
     };
 
-    const response = await axios.post(adminEndpoints.auth.login, data);
-    if (response.data.status_code === 0) {
-      const { token, adminID } = response.data.Data;
+    try {
+      const response = await axios.post(adminEndpoints.auth.login, data);
+      if (response.data.status_code === 0)
+      {
+        const { token, adminID } = response.data.Data;
 
-      setSession(token);
-      sessionStorage.removeItem("adminID")
-      sessionStorage.setItem("adminID", adminID)
+        setSession(token);
+        sessionStorage.removeItem("adminID")
+        sessionStorage.setItem("adminID", adminID)
 
-      dispatch({
-        type: 'LOGIN',
-        payload: {
-          user: {
-            adminID,
-            token,
+        dispatch({
+          type: 'LOGIN',
+          payload: {
+            user: {
+              adminID,
+              token,
+            },
           },
-        },
-      });
+        });
 
-      return {
-        success: true,
+        return {
+          success: true,
+        }
+      } else
+      {
+        return {
+          success: false,
+          errMsg: response.data.Data.status_msg,
+        }
       }
-    } else {
+    } catch (err) {
       return {
         success: false,
-        errMsg: response.data.Data.status_msg,
+        errMsg: err.status_msg,
       }
     }
   }, []);

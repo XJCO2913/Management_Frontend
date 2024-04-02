@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useAuthContext } from 'src/auth/hooks'
 import { useRouter } from 'src/routes/hooks';
 
-export default function AvatarCard({ avatarUrl, name, description, githubUrl }) {
+export default function AvatarCard({ avatarUrl, name, description, githubUrl, onLoginError }) {
     const [isLogin, setIsLogin] = useState(false)
     const [password, setPassword] = useState('')
     const { login } = useAuthContext()
@@ -18,7 +18,7 @@ export default function AvatarCard({ avatarUrl, name, description, githubUrl }) 
         if (res.success) {
             router.push('/dashboard')
         } else {
-            alert(res.errMsg)
+            onLoginError(res.errMsg)
         }
     }
 

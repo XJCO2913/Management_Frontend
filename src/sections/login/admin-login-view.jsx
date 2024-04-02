@@ -1,5 +1,6 @@
 import React from "react";
 import AvatarCard from "./admin-card-view";
+import { useSnackbar } from 'src/components/snackbar';
 
 export const Admins = [
     {
@@ -29,6 +30,12 @@ export const Admins = [
 ]
 
 export default function AdminLoginView() {
+    const { enqueueSnackbar } = useSnackbar();
+
+    const handleLoginError = (errMsg) => {
+        enqueueSnackbar(`Error: ${errMsg}`, {variant: 'error'})
+    }
+
     return (
         <div className="bg-white dark:bg-gray-900 h-screen">
             <section>
@@ -49,6 +56,7 @@ export default function AdminLoginView() {
                                 avatarUrl={admin.avatarUrl}
                                 description={admin.description}
                                 githubUrl={admin.githubUrl}
+                                onLoginError={handleLoginError}
                             />
                         ))}
                     </div>
