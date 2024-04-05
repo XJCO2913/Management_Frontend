@@ -6,9 +6,16 @@ export const HOST_API = 'http://43.136.232.116:5000/test';
 
 export const apiInstance = axios.create({
   baseURL: HOST_API,
-  headers: {
-    Authorization: `Bearer ${'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MTE4Nzg1NTQsImlzQWRtaW4iOnRydWUsInVzZXJJRCI6IjEyMzEyMzEyMyJ9.-az1mJ_3tSVtK16uD5Sg7kDU9Gf-GQd4Pq19i2UbYOk'}`, 
+});
+
+apiInstance.interceptors.request.use(function (config) {
+  const token = sessionStorage.getItem('accessToken');
+  if (token) {
+    config.headers['Authorization'] = `Bearer ${token}`;
   }
+  return config;
+}, function (error) {
+  return Promise.reject(error);
 });
 
 export const userEndpoints = {
