@@ -25,7 +25,7 @@ export default function UserTableRow({ row, selected, onEditRow, onSelectRow, on
     return null; 
   }
   // console.log(row.userId)
-
+  // const DEFAULT_AVATAR_URL = "avatar.jpg"; //默认头像？
   const { username, avatarUrl, gender, birthday, region, membershipTime } = row;
 
   const confirm = useBoolean();
@@ -40,14 +40,11 @@ export default function UserTableRow({ row, selected, onEditRow, onSelectRow, on
     <>
       <TableRow hover selected={selected}>
         <TableCell padding="checkbox">
-          <Checkbox
-          checked={selected} 
-          onChange={onSelectRow}
-        />
+          <Checkbox checked={selected} onChange={onSelectRow}/>
         </TableCell>
 
         <TableCell sx={{ display: 'flex', alignItems: 'center' }}>
-          <Avatar alt={username} src={avatarUrl} sx={{ mr: 2 }} />
+          <Avatar alt={username} src={avatarUrl || username[0]} sx={{ mr: 2 }} />
           <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap' }}>
             <ListItemText
               primary={
@@ -55,7 +52,7 @@ export default function UserTableRow({ row, selected, onEditRow, onSelectRow, on
                   {username}
                   <Label
                     variant="soft"
-                    color={row.isBanned ? 'error' : 'success'} // Use 'success' to indicate green color for active users
+                    color={row.isBanned ? 'error' : 'success'}
                     sx={{ ml: 1, display: 'inline-flex', verticalAlign: 'middle' }}
                   >
                     {row.isBanned ? 'Banned' : 'Active'}

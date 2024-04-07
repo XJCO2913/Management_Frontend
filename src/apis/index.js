@@ -6,9 +6,16 @@ export const HOST_API = 'http://43.136.232.116:5000/test';
 
 export const apiInstance = axios.create({
   baseURL: HOST_API,
-  headers: {
-    Authorization: `Bearer ${'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MTIxMTUwNDMsImlzQWRtaW4iOnRydWUsInVzZXJJRCI6MX0.ssCF-A_wK-0UbVW8uB5NUEe660spxV4LoIFQc08apQ4'}`, 
+});
+
+apiInstance.interceptors.request.use(function (config) {
+  const token = sessionStorage.getItem('accessToken');
+  if (token) {
+    config.headers['Authorization'] = `Bearer ${token}`;
   }
+  return config;
+}, function (error) {
+  return Promise.reject(error);
 });
 
 export const userEndpoints = {
@@ -27,6 +34,7 @@ export const userEndpoints = {
     method: 'patch',
     data: userData,
   }),
+  uploadAvatar:`/user/avatar`,
 };
 
 export const adminEndpoints = {

@@ -33,6 +33,7 @@ export default function UserNewEditForm({ userId, currentUser }) {
   const [userData, setUserData] = useState([]);
   const navigate = useNavigate();
 
+  
   const handleEditUser = async (userId, changes) => {
     try {
       const { url, method } = userEndpoints.editUserById(userId, changes);
@@ -48,8 +49,30 @@ export default function UserNewEditForm({ userId, currentUser }) {
         enqueueSnackbar('Error editing user', { variant: 'error' });
     }
   };
-  
-  
+
+  const handleUploadAvatar = async (file) => {
+    if (file) {
+      const formData = new FormData();
+      formData.append('avatar', file);
+      formData.append('userId', userId);
+
+      try {
+        const response = await apiInstance.post(userEndpoints.uploadAvatar, formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        });
+
+        if (response.status === 200) {
+          enqueueSnackbar('Profile picture uploaded successfully', { variant: 'success' });
+        }
+      } catch (error) {
+        console.error('Error uploading avatar:', error);
+        enqueueSnackbar('Failed to upload profile picture', { variant: 'error' });
+      }
+    }
+  };
+      
   const formatDate = (date) => {
     if (!(date instanceof Date)) return date; 
   
@@ -143,33 +166,35 @@ export default function UserNewEditForm({ userId, currentUser }) {
   ];
 
   const onSubmit = handleSubmit(async (formData) => {
+    const file = formData.avatarUrl;
+    const avatarUrl = await handleUploadAvatar(file);
+    delete formData.avatarUrl;
     const changes = hasChanged(currentUser, formData);
     const response = await apiInstance.get(userEndpoints.checkUserStatusById(userId));
-    
     const statusChanged = isBanned !== response.data.Data.isBanned;
     const infoChanged = Object.keys(changes).length > 0;
 
-    if (!infoChanged && !statusChanged) {
-        enqueueSnackbar('No changes to user information', { variant: 'warning' });
-        return; 
+    if (!infoChanged && !statusChanged && !file) {
+      enqueueSnackbar('No changes to user information', { variant: 'warning' });
+      return;
     }
 
     if (infoChanged)
       await handleEditUser(userId, changes);
     
     if (statusChanged) {
-        if (isBanned) {
-            await apiInstance.post(userEndpoints.banUserById(userId));
-            enqueueSnackbar('User banned successfully', { variant: 'success' });
-        } else {
-            await apiInstance.post(userEndpoints.unbanUserById(userId));
-            enqueueSnackbar('User unbanned successfully', { variant: 'success' });
-        }
+      if (isBanned) {
+          await apiInstance.post(userEndpoints.banUserById(userId));
+          enqueueSnackbar('User banned successfully', { variant: 'success' });
+      } else {
+          await apiInstance.post(userEndpoints.unbanUserById(userId));
+          enqueueSnackbar('User unbanned successfully', { variant: 'success' });
       }
+    }
 
     navigate(paths.user.list);  
   });
-  
+
   const handleDrop = useCallback(
     (acceptedFiles) => {
       const file = acceptedFiles[0];
@@ -199,6 +224,8 @@ export default function UserNewEditForm({ userId, currentUser }) {
 
     checkUserStatus();
   }, [userId, enqueueSnackbar]);
+
+  const today = new Date().toISOString().split('T')[0];
 
   return (
     <FormProvider methods={methods} onSubmit={onSubmit}>
@@ -291,7 +318,6 @@ export default function UserNewEditForm({ userId, currentUser }) {
                 )}
               />
 
-
               {/* Birthday */}
               <Controller
                 name="birthday"
@@ -302,6 +328,9 @@ export default function UserNewEditForm({ userId, currentUser }) {
                     type="date"
                     label="Birthday"
                     InputLabelProps={{ shrink: true }}
+                    inputProps={{
+                      max: today,
+                    }}
                     onChange={(e) => field.onChange(e.target.value || null)}
                   />
                 )}
