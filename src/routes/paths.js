@@ -33,6 +33,12 @@ export const paths = {
     list: '/user/list',
     edit: (id) => `/user/${id}/edit`,
   },
+  tour: {
+    root: `/tour/list`,
+    new: `/tour/new`,
+    details: (id) => `/tour/${id}`,
+    edit: (id) => `/tour/${id}/edit`,
+  },
   // DASHBOARD
   dashboard: {
     root: ROOTS.DASHBOARD,
@@ -79,16 +85,6 @@ export const paths = {
       demo: {
         details: `${ROOTS.DASHBOARD}/post/${paramCase(MOCK_TITLE)}`,
         edit: `${ROOTS.DASHBOARD}/post/${paramCase(MOCK_TITLE)}/edit`,
-      },
-    },
-    tour: {
-      root: `${ROOTS.DASHBOARD}/tour`,
-      new: `${ROOTS.DASHBOARD}/tour/new`,
-      details: (id) => `${ROOTS.DASHBOARD}/tour/${id}`,
-      edit: (id) => `${ROOTS.DASHBOARD}/tour/${id}/edit`,
-      demo: {
-        details: `${ROOTS.DASHBOARD}/tour/${MOCK_ID}`,
-        edit: `${ROOTS.DASHBOARD}/tour/${MOCK_ID}/edit`,
       },
     },
   },

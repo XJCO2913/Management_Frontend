@@ -42,3 +42,10 @@ export const adminEndpoints = {
     login: '/admin/login'
   }
 };
+
+export const endpoints = {
+  activity: {
+    create: '/activity/create',
+    all: '/activity/all'
+  }
+};
