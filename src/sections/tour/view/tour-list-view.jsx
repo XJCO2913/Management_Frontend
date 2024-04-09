@@ -25,7 +25,7 @@ import TourSort from '../tour-sort';
 import TourSearch from '../tour-search';
 import TourFilters from '../tour-filters';
 import TourFiltersResult from '../tour-filters-result';
-import { axiosSimple } from '@/utils/axios';
+import { axiosSimple } from 'src/utils/axios';
 import { endpoints } from 'src/apis';
 
 // ----------------------------------------------------------------------

@@ -35,7 +35,7 @@ import FormProvider, {
   RHFMultiCheckbox,
 } from 'src/components/hook-form';
 import { Autocomplete, TextField } from '@mui/material';
-import { axiosSimple } from '@/utils/axios';
+import { axiosSimple } from 'src/utils/axios';
 import { endpoints } from 'src/apis';
 
 // ----------------------------------------------------------------------

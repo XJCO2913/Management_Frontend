@@ -1,10 +1,12 @@
 import axios from 'axios';
-import { HOST_API } from 'src/apis/index';
+import { HOST_API, TEST_HOST_API } from 'src/apis/index';
 
 // ----------------------------------------------------------------------
 
 // Can be used to send various requests get post delete
-export const axiosInstance = axios.create({ baseURL: HOST_API });
+const axiosInstance = axios.create({ baseURL: HOST_API });
+export const axiosSimple = axios.create({ baseURL: TEST_HOST_API })
+
 
 axiosInstance.interceptors.response.use(
   (res) => res,

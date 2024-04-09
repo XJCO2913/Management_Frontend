@@ -28,7 +28,7 @@ export const paths = {
   page404: '/404',
   page500: '/500',
   components: '/components',
- 
+
   user: {
     list: '/user/list',
     edit: (id) => `/user/${id}/edit`,
@@ -36,8 +36,8 @@ export const paths = {
   tour: {
     root: `/tour/list`,
     new: `/tour/new`,
-    details: (id) => `/tour/${id}`,
-    edit: (id) => `/tour/${id}/edit`,
+    details: `/tour/${MOCK_ID}`,
+    edit: `/tour/${MOCK_ID}/edit`,
   },
   // DASHBOARD
   dashboard: {

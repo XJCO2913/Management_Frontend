@@ -3,6 +3,8 @@ import axios from 'axios';
 
 // Base URL
 export const HOST_API = 'http://43.136.232.116:5000/test';
+export const TEST_HOST_API = 'http://43.136.232.116:5000/test'
+
 
 export const apiInstance = axios.create({
   baseURL: HOST_API,

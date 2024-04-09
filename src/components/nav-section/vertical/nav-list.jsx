@@ -15,7 +15,6 @@ export default function NavList({ data, depth, slotProps }) {
 
   if (typeof data.path !== 'string') {
     console.log('Expected "path" to be a string, but received:', data.path);
-    // 可以在这里进行适当的处理或者返回
   }
 
   const active = useActiveLink(data.path, !!data.children);
