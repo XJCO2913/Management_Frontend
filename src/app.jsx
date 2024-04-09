@@ -69,7 +69,7 @@ export default function App() {
             </MotionLazy>
           </ThemeProvider>
         </SettingsProvider>
-      </LocalizationProvider>x
+      </LocalizationProvider>
     </AuthProvider>
   );
 }

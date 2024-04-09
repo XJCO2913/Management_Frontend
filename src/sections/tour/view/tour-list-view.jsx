@@ -25,8 +25,7 @@ import TourSort from '../tour-sort';
 import TourSearch from '../tour-search';
 import TourFilters from '../tour-filters';
 import TourFiltersResult from '../tour-filters-result';
-import { axiosSimple } from 'src/utils/axios';
-import { endpoints } from 'src/apis';
+import { apiInstance, endpoints } from 'src/apis';
 
 // ----------------------------------------------------------------------
 
@@ -57,18 +56,24 @@ export default function TourListView() {
   const dateError = isAfter(filters.startDate, filters.endDate);
 
   const [activities, setActivities] = useState([])
-  // fetch activity data
-  const token = sessionStorage.getItem('token')
-  const httpConfig = {
-    headers: {
-      'Authorization': `Bearer ${token}`,
-    }
-  }
+  
   const fetchAllActivities = async () => {
-    const resp = await axiosSimple.get(endpoints.activity.all, httpConfig)
-    console.log('all activity:', resp)
-    setActivities(resp.data.Data)
-  }
+    try {
+      const resp = await apiInstance.get(endpoints.activity.all);
+      console.log('Response status:', resp.status);
+      console.log('Response statusText:', resp.statusText);
+      console.log('All activities:', resp.data);
+      setActivities(resp.data.Data);
+    } catch (error) {
+      console.error('Error fetching activities:', error);
+      if (error.response) {
+        console.log('Error response data:', error.response.data);
+        console.log('Error response status:', error.response.status);
+        console.log('Error response headers:', error.response.headers);
+      }
+    }
+  };
+  
 
   const dataFiltered = applyFilter({
     inputData: activities,
