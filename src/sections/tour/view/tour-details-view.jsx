@@ -21,11 +21,21 @@ import TourDetailsBookers from '../tour-details-bookers';
 export default function TourDetailsView({ id }) {
   const settings = useSettingsContext();
 
-  const currentTour = _tours.filter((tour) => tour.id === id)[0];
-
-  const [publish, setPublish] = useState(currentTour?.publish);
-
+  const [currentTour, setCurrentTour] = useState(null);
   const [currentTab, setCurrentTab] = useState('content');
+
+  useEffect(() => {
+    const getTourDetails = async () => {
+      try {
+        const response = await fetchTourDetails(id);
+        setCurrentTour(response.data);
+      } catch (error) {
+        console.error('Failed to fetch tour details:', error);
+      }
+    };
+
+    getTourDetails();
+  }, [id]);
 
   const handleChangeTab = useCallback((event, newValue) => {
     setCurrentTab(newValue);

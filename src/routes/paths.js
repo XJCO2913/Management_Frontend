@@ -17,6 +17,19 @@ const ROOTS = {
 // ----------------------------------------------------------------------
 
 export const paths = {
+  user: {
+    list: '/user/list',
+    edit: (id) => `/user/${id}/edit`,
+  },
+  tour: {
+    root: `/tour/list`,
+    new: `/tour/new`,
+    // details: `/tour/${MOCK_ID}`,
+    // edit: `/tour/${MOCK_ID}/edit`,
+    details: (id) => `/tour/${id}`,
+    edit: (id) => `/tour/${id}/edit`,
+  },
+  
   comingSoon: '/coming-soon',
   maintenance: '/maintenance',
   pricing: '/pricing',
@@ -28,17 +41,6 @@ export const paths = {
   page404: '/404',
   page500: '/500',
   components: '/components',
-
-  user: {
-    list: '/user/list',
-    edit: (id) => `/user/${id}/edit`,
-  },
-  tour: {
-    root: `/tour/list`,
-    new: `/tour/new`,
-    details: `/tour/${MOCK_ID}`,
-    edit: `/tour/${MOCK_ID}/edit`,
-  },
   // DASHBOARD
   dashboard: {
     root: ROOTS.DASHBOARD,

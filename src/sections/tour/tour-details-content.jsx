@@ -23,6 +23,7 @@ import Lightbox, { useLightBox } from 'src/components/lightbox';
 // ----------------------------------------------------------------------
 
 export default function TourDetailsContent({ tour }) {
+  console.log(tour);
   const {
     name,
     images,

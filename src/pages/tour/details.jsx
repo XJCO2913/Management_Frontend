@@ -9,7 +9,8 @@ import { TourDetailsView } from 'src/sections/tour/view';
 export default function TourDetailsPage() {
   const params = useParams();
 
-  const { id } = params;
+  const { tourId } = params;
+  
 
   return (
     <>
@@ -17,7 +18,7 @@ export default function TourDetailsPage() {
         <title> Analytics</title>
       </Helmet>
 
-      <TourDetailsView id={`${id}`} />
+      <TourDetailsView id={`${tourId}`} />
     </>
   );
 }

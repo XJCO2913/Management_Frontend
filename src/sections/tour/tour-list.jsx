@@ -12,6 +12,7 @@ import TourItem from './tour-item';
 // ----------------------------------------------------------------------
 
 export default function TourList({ tours }) {
+  // console.log(tours);
   const router = useRouter();
 
   const handleView = useCallback(
@@ -20,14 +21,16 @@ export default function TourList({ tours }) {
     },
     [router]
   );
-
+  
   const handleEdit = useCallback(
     async (activityId) => {
-      router.push(paths.tour.edit(activityId));
+      const path = paths.tour.edit(activityId); 
+      console.log('Path to navigate:', path); 
+      router.push(path);
     },
     [router]
   );
-
+  
   const handleDelete = useCallback(
     async (activityId) => {
       console.info('DELETE', activityId);

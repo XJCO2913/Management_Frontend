@@ -82,7 +82,7 @@ export default function TourListView() {
     dateError,
   });
 
-  console.log('all activity:', dataFiltered)
+  // console.log('all activities:', dataFiltered)
   const canReset =
     !!filters.destination.length ||
     !!filters.tourGuides.length ||
@@ -186,11 +186,8 @@ export default function TourListView() {
       <CustomBreadcrumbs
         heading="List"
         links={[
-          { name: 'Home', href: paths.dashboard },
-          {
-            name: 'Activity',
-            href: paths.tour.root,
-          },
+          { name: 'Dashboard', href: paths.dashboard.root },
+          { name: 'Activit', href: paths.tour.root },
           { name: 'List' },
         ]}
         action={

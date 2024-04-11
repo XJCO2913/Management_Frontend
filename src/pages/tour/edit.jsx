@@ -9,7 +9,7 @@ import { TourEditView } from 'src/sections/tour/view';
 export default function TourEditPage() {
   const params = useParams();
 
-  const { id } = params;
+  const { tourId } = params;
 
   return (
     <>
@@ -17,7 +17,7 @@ export default function TourEditPage() {
         <title> Tour Edit</title>
       </Helmet>
 
-      <TourEditView id={`${id}`} />
+      <TourEditView id={`${tourId}`} />
     </>
   );
 }
