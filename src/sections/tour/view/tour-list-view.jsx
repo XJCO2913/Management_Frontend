@@ -187,7 +187,7 @@ export default function TourListView() {
         heading="List"
         links={[
           { name: 'Dashboard', href: paths.dashboard.root },
-          { name: 'Activit', href: paths.tour.root },
+          { name: 'Activity', href: paths.tour.root },
           { name: 'List' },
         ]}
         action={

@@ -41,10 +41,16 @@ export default function TourDetailsContent({ tour }) {
     src: coverUrl,
   }];
 
+  const ACTIVITY_TAGS = [
+    { tagID: '10001', tagName: 'refresher' },
+    { tagID: '10002', tagName: 'supplement' },
+    { tagID: '10003', tagName: 'sports-outfit' },
+    { tagID: '10004', tagName: 'medical-support' },
+  ];
+
   const getUserName = async (userId) => {
     try {
       const response = await apiInstance.get(userEndpoints.fetchUserById(userId));
-      console.log(response);
       return response.data.Data;
     } catch (error) {
       console.error('Failed to fetch user by ID:', error);
@@ -57,7 +63,7 @@ export default function TourDetailsContent({ tour }) {
     const getUserInfo = async () => {
       try {
         const userData = await getUserName(creatorID);
-        setCreatorName(userData.username); 
+        setCreatorName(userData.username);
       } catch (error) {
         console.log('Error fetching user details:', error);
       }
@@ -66,6 +72,14 @@ export default function TourDetailsContent({ tour }) {
     getUserInfo();
   }, [creatorID]);
 
+  // 将标签字符串分割成数组
+  const tagIds = tags.split('|');
+
+  // 根据标签 ID 获取标签名
+  const renderTags = tagIds.map(tagId => {
+    const tag = ACTIVITY_TAGS.find(tag => tag.tagID === tagId);
+    return tag ? tag.tagName : ''; // 如果找不到对应的标签名，则返回空字符串
+  });
   const renderGallery = (
     <Box
       gap={1}
@@ -97,7 +111,7 @@ export default function TourDetailsContent({ tour }) {
       </m.div>
     </Box>
   );
-
+  
   const renderHead = (
     <Stack direction="row" sx={{ mb: 3 }}>
       <Typography variant="h4" sx={{ flexGrow: 1 }}>
@@ -179,11 +193,12 @@ export default function TourDetailsContent({ tour }) {
           }}
         />
       </Stack>
+
       <Stack spacing={1.5} direction="row">
-        <Iconify icon="mdi:tag-multiple"/>
+        <Iconify icon="mdi:tag-multiple" />
         <ListItemText
           primary="Tags"
-          secondary={tags}
+          secondary={renderTags.join(', ')} // 将标签名数组连接为字符串
           primaryTypographyProps={{
             typography: 'body2',
             color: 'text.secondary',

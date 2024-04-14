@@ -17,14 +17,8 @@ export default function TourCreateView() {
       <CustomBreadcrumbs
         heading="Create a new activity"
         links={[
-          {
-            name: 'Home',
-            href: paths.dashboard,
-          },
-          {
-            name: 'Activity',
-            href: paths.tour.root,
-          },
+          { name: 'Dashboard', href: paths.dashboard.root },
+          { name: 'Activity', href: paths.tour.root },
           { name: 'New activity' },
         ]}
         sx={{

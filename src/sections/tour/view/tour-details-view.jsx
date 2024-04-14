@@ -37,7 +37,7 @@ export default function TourDetailsView({ id }) {
           <TourDetailsToolbar
             backLink={paths.tour.root}
             editLink={`${paths.tour.edit}/${id}`}
-            publish={currentTour.finalFee ? 'published' : 'draft'} // 示例：使用 finalFee 来判断状态
+            publish={currentTour.finalFee ? 'published' : 'draft'}
           />
           <Tabs value={currentTab} onChange={handleChangeTab}>
             <Tab label="Content" value="content" />
