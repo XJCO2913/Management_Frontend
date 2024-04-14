@@ -21,7 +21,7 @@ import CustomPopover, { usePopover } from 'src/components/custom-popover';
 
 // ----------------------------------------------------------------------
 
-export default function TourItem({ tour, onView, onEdit, onDelete }) {
+export default function TourItem({ tour, onView, onDelete }) {
   
 
   const popover = usePopover();
@@ -180,16 +180,6 @@ export default function TourItem({ tour, onView, onEdit, onDelete }) {
         <MenuItem
           onClick={() => {
             popover.onClose();
-            onEdit();
-          }}
-        >
-          <Iconify icon="solar:pen-bold" />
-          Edit
-        </MenuItem>
-
-        <MenuItem
-          onClick={() => {
-            popover.onClose();
             onDelete();
           }}
           sx={{ color: 'error.main' }}
@@ -204,7 +194,6 @@ export default function TourItem({ tour, onView, onEdit, onDelete }) {
 
 TourItem.propTypes = {
   onDelete: PropTypes.func,
-  onEdit: PropTypes.func,
   onView: PropTypes.func,
   tour: PropTypes.object,
 };

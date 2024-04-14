@@ -49,6 +49,7 @@ export const endpoints = {
   activity: {
     create: `/activity/create`,
     all: `/activity/all`,
+    deleteById: (activityId) => `/activity?activityID=${activityId}`,
     getById: (activityId) => `/activity?activityID=${activityId}`,
   }
 };

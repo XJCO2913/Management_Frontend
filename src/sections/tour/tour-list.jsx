@@ -1,5 +1,6 @@
 import PropTypes from 'prop-types';
-import { useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
+import { useSnackbar } from 'src/components/snackbar';
 
 import Box from '@mui/material/Box';
 import Pagination, { paginationClasses } from '@mui/material/Pagination';
@@ -8,34 +9,59 @@ import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hooks';
 
 import TourItem from './tour-item';
+import { apiInstance, endpoints } from 'src/apis';
 
 // ----------------------------------------------------------------------
 
 export default function TourList({ tours }) {
-  // console.log(tours);
+  const [data, setData] = useState(tours);
+  const { enqueueSnackbar } = useSnackbar();
   const router = useRouter();
 
+  useEffect(() => {
+    setData(tours);
+  }, [tours]);
+
   const handleView = useCallback(
-    async (activityId) => {
+    (activityId) => {
       router.push(paths.tour.details(activityId));
-    },
-    [router]
-  );
-  
-  const handleEdit = useCallback(
-    async (activityId) => {
-      const path = paths.tour.edit(activityId); 
-      console.log('Path to navigate:', path); 
-      router.push(path);
     },
     [router]
   );
   
   const handleDelete = useCallback(
     async (activityId) => {
-      console.info('DELETE', activityId);
-    }, 
-  []);
+      try {
+        const response = await deleteById(activityId);
+        // console.log('Delete response:', response);
+  
+        enqueueSnackbar('Delete success!', { variant: 'success' });
+  
+        updateDataAfterDeletion([activityId]);
+  
+      } catch (error) {
+        console.error('Error deleting user:', error);
+        enqueueSnackbar('Error deleting user', { variant: 'error' });
+      }
+    },
+    [enqueueSnackbar]
+  );
+
+  const deleteById = async (activityId) => {
+    try {
+      const response = await apiInstance.delete(endpoints.activity.deleteById(activityId));
+      return response.data;
+    } catch (error) {
+      console.error('Error deleting activity:', error);
+      throw error;
+    }
+  };
+  
+  function updateDataAfterDeletion(deletedIds) {
+    setData(prevData =>
+      prevData.filter(tour => !deletedIds.includes(tour.activityId))
+    );
+  }  
 
   return (
     <>
@@ -48,18 +74,17 @@ export default function TourList({ tours }) {
           md: 'repeat(3, 1fr)',
         }}
       >
-        {tours.map((tour) => (
+        {data.map((tour) => (
           <TourItem
             key={tour.activityId}
             tour={tour}
             onView={() => handleView(tour.activityId)}
-            onEdit={() => handleEdit(tour.activityId)}
             onDelete={() => handleDelete(tour.activityId)}
           />
         ))}
       </Box>
 
-      {tours.length > 8 && (
+      {data.length > 8 && (
         <Pagination
           count={8}
           sx={{
