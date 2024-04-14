@@ -109,7 +109,7 @@ export function useNavData() {
 
           // TOUR
           {
-            title: t('tour'),
+            title: t('activity'),
             path: paths.tour.root,
             icon: ICONS.tour,
             children: [

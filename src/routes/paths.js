@@ -24,8 +24,6 @@ export const paths = {
   tour: {
     root: `/tour/list`,
     new: `/tour/new`,
-    // details: `/tour/${MOCK_ID}`,
-    // edit: `/tour/${MOCK_ID}/edit`,
     details: (id) => `/tour/${id}`,
     edit: (id) => `/tour/${id}/edit`,
   },

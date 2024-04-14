@@ -21,7 +21,7 @@ apiInstance.interceptors.request.use(function (config) {
 });
 
 export const userEndpoints = {
-  fetchAllUsers: '/users',
+  fetchAllUsers: `/users`,
   fetchUserById: (userId) => `/user?userID=${userId}`,
   deleteUserById: (userId) => `/user?userID=${userId}`,
   deleteUserByIds: (userIdsString) => `/user?userID=${userIdsString}`,
@@ -41,13 +41,14 @@ export const userEndpoints = {
 
 export const adminEndpoints = {
   auth:{
-    login: '/admin/login'
+    login: `/admin/login`
   }
 };
 
 export const endpoints = {
   activity: {
-    create: '/activity/create',
-    all: '/activity/all'
+    create: `/activity/create`,
+    all: `/activity/all`,
+    getById: (activityId) => `/activity?activityID=${activityId}`,
   }
 };

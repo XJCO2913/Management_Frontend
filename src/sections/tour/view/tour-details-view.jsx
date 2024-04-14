@@ -1,95 +1,57 @@
 import PropTypes from 'prop-types';
-import { useState, useCallback } from 'react';
-
+import { useState, useEffect } from 'react';
 import Tab from '@mui/material/Tab';
 import Tabs from '@mui/material/Tabs';
 import Container from '@mui/material/Container';
-
 import { paths } from 'src/routes/paths';
-
-import { _tours, TOUR_DETAILS_TABS, TOUR_PUBLISH_OPTIONS } from 'src/_mock';
-
-import Label from 'src/components/label';
-import { useSettingsContext } from 'src/components/settings';
-
+import { apiInstance, endpoints } from 'src/apis';
 import TourDetailsToolbar from '../tour-details-toolbar';
 import TourDetailsContent from '../tour-details-content';
 import TourDetailsBookers from '../tour-details-bookers';
 
-// ----------------------------------------------------------------------
-
 export default function TourDetailsView({ id }) {
-  const settings = useSettingsContext();
-
   const [currentTour, setCurrentTour] = useState(null);
   const [currentTab, setCurrentTab] = useState('content');
 
   useEffect(() => {
-    const getTourDetails = async () => {
+    const loadTourDetails = async () => {
       try {
-        const response = await fetchTourDetails(id);
-        setCurrentTour(response.data);
+        const response = await apiInstance.get(endpoints.activity.getById(id));
+        setCurrentTour(response.data.Data);
       } catch (error) {
-        console.error('Failed to fetch tour details:', error);
+        console.error('Error loading tour details:', error);
       }
     };
 
-    getTourDetails();
+    loadTourDetails();
   }, [id]);
 
-  const handleChangeTab = useCallback((event, newValue) => {
+  const handleChangeTab = (event, newValue) => {
     setCurrentTab(newValue);
-  }, []);
-
-  const handleChangePublish = useCallback((newValue) => {
-    setPublish(newValue);
-  }, []);
-
-  const renderTabs = (
-    <Tabs
-      value={currentTab}
-      onChange={handleChangeTab}
-      sx={{
-        mb: { xs: 3, md: 5 },
-      }}
-    >
-      {TOUR_DETAILS_TABS.map((tab) => (
-        <Tab
-          key={tab.value}
-          iconPosition="end"
-          value={tab.value}
-          label={tab.label}
-          icon={
-            tab.value === 'bookers' ? (
-              <Label variant="filled">{currentTour?.bookers.length}</Label>
-            ) : (
-              ''
-            )
-          }
-        />
-      ))}
-    </Tabs>
-  );
+  };
 
   return (
-    <Container maxWidth={settings.themeStretch ? false : 'lg'}>
-      <TourDetailsToolbar
-        backLink={paths.tour.root}
-        editLink={paths.tour.edit}
-        liveLink="#"
-        publish={publish || ''}
-        onChangePublish={handleChangePublish}
-        publishOptions={TOUR_PUBLISH_OPTIONS}
-      />
-      {renderTabs}
-
-      {currentTab === 'content' && <TourDetailsContent tour={currentTour} />}
-
-      {currentTab === 'bookers' && <TourDetailsBookers bookers={currentTour?.bookers} />}
+    <Container maxWidth="lg">
+      {currentTour && (
+        <>
+          <TourDetailsToolbar
+            backLink={paths.tour.root}
+            editLink={`${paths.tour.edit}/${id}`}
+            publish={currentTour.finalFee ? 'published' : 'draft'} // 示例：使用 finalFee 来判断状态
+          />
+          <Tabs value={currentTab} onChange={handleChangeTab}>
+            <Tab label="Content" value="content" />
+            <Tab label="Bookers" value="bookers" />
+          </Tabs>
+          {currentTab === 'content' && <TourDetailsContent tour={currentTour} />}
+          {currentTab === 'bookers' && <TourDetailsBookers bookers={currentTour.bookers || []} />}
+        </>
+      )}
+      {!currentTour && <p>Loading...</p>}
     </Container>
   );
 }
 
 TourDetailsView.propTypes = {
-  id: PropTypes.string,
+  id: PropTypes.string.isRequired,
 };
