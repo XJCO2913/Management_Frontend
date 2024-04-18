@@ -1,19 +1,13 @@
-import path from 'path';
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react-swc';
 import checker from 'vite-plugin-checker';
+import { fileURLToPath, URL } from 'url';
+import path from 'path';
 
 export default defineConfig({
   plugins: [
     react(),
-    // checker({
-    //   eslint: {
-    //     lintCommand: 'eslint "./src/**/*.{js,jsx,ts,tsx}"',
-    //   },
-    //   overlay: {
-    //     initialIsOpen: false,
-    //   },
-    // }),
+
   ],
   resolve: {
     alias: [
@@ -36,5 +30,8 @@ export default defineConfig({
   },
   preview: {
     port: 5866,
+  },
+  optimizeDeps: {
+    exclude: ['js-big-decimal']
   },
 });
