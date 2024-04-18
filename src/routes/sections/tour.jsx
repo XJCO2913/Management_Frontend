@@ -5,8 +5,6 @@ import { SplashScreen } from 'src/components/loading-screen';
 // ----------------------------------------------------------------------
 
 const TourListPage = lazy(() => import('src/pages/tour/list'));
-const TourCreatePage = lazy(() => import('src/pages/tour/new'));
-// const TourDetailsPage = lazy(() => import('src/pages/tour/details'));
 // const TourEditPage = lazy(() => import('src/pages/tour/edit'));
 const TourDetailsPage = lazy(() => import('src/pages/tour/details'));
 
