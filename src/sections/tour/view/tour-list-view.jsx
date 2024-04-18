@@ -190,16 +190,6 @@ export default function TourListView() {
           { name: 'Activity', href: paths.tour.root },
           { name: 'List' },
         ]}
-        action={
-          <Button
-            component={RouterLink}
-            href={paths.tour.new}
-            variant="contained"
-            startIcon={<Iconify icon="mingcute:add-line" />}
-          >
-            New Activity
-          </Button>
-        }
         sx={{
           mb: { xs: 3, md: 5 },
         }}

@@ -115,7 +115,7 @@ export function useNavData() {
             children: [
               { title: t('list'), path: paths.tour.root },
               // { title: t('details'), path: paths.tour.details },
-              { title: t('create'), path: paths.tour.new },
+              // { title: t('create'), path: paths.tour.new },
               // { title: t('edit'), path: paths.tour.edit },
             ],
           },

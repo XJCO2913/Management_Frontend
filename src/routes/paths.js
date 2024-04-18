@@ -23,9 +23,7 @@ export const paths = {
   },
   tour: {
     root: `/tour/list`,
-    new: `/tour/new`,
     details: (id) => `/tour/${id}`,
-    edit: (id) => `/tour/${id}/edit`,
   },
   
   comingSoon: '/coming-soon',
