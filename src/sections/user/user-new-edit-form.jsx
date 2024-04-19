@@ -5,7 +5,7 @@ import React, { useMemo, useCallback, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useForm, Controller } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
-
+import { format } from 'date-fns';
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import Stack from '@mui/material/Stack';
@@ -74,13 +74,9 @@ export default function UserNewEditForm({ userId, currentUser }) {
   };
       
   const formatDate = (date) => {
-    if (!(date instanceof Date)) return date; 
-  
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
-  
-    return `${year}-${month}-${day}`;
+    if (!(date instanceof Date) || isNaN(date)) return date;
+    
+    return format(date, 'dd MMM yy HH:mm XX');
   };
   
   const hasChanged = (original, current) => {
@@ -149,7 +145,7 @@ export default function UserNewEditForm({ userId, currentUser }) {
       const formValues = {
         username: userData.username || '',
         gender: userData.gender || 2,
-        birthday: userData.birthday || '',
+        birthday: userData.birthday ? format(new Date(userData.birthday), 'yyyy-MM-dd') : '',
         region: userData.region || '',
       };
       reset(formValues);
