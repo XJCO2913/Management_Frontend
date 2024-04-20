@@ -11,12 +11,13 @@ const MOCK_TITLE = _postTitles[2];
 const ROOTS = {
   AUTH: '/auth',
   AUTH_DEMO: '/auth-demo',
-  DASHBOARD: '/',
+  DASHBOARD: '/dashboard',
 };
 
 // ----------------------------------------------------------------------
 
 export const paths = {
+  overview: '/dashboard',
   user: {
     list: '/user/list',
     edit: (id) => `/user/${id}/edit`,

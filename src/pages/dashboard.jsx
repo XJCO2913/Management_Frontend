@@ -1,4 +1,5 @@
 import { Helmet } from 'react-helmet-async';
+import { OverviewAppView } from 'src/sections/overview/view';
 
 // ----------------------------------------------------------------------
 
@@ -6,10 +7,10 @@ export default function DashboardPage() {
   return (
     <>
       <Helmet>
-        <title> Dashboard</title>
+        <title> OverviewPage</title>
       </Helmet>
 
-      <div>this is dashboard 1</div>
+      <OverviewAppView />
     </>
   );
 }
