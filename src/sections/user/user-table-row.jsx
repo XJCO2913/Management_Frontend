@@ -18,9 +18,47 @@ import { paths} from 'src/routes/paths'
 import Iconify from 'src/components/iconify';
 import { ConfirmDialog } from 'src/components/custom-dialog';
 import CustomPopover, { usePopover } from 'src/components/custom-popover';
+import { Badge } from '@mui/material';
+import { styled } from '@mui/material/styles';
 // ----------------------------------------------------------------------
 
-export default function UserTableRow({ row, selected, onEditRow, onSelectRow, onDeleteRow, onBanRow, onUnbanRow }) {
+const OfflineStyledBadge = styled(Badge)(({ theme }) => ({
+  '& .MuiBadge-badge': {
+    backgroundColor: '#808080',
+    boxShadow: `0 0 0 2px ${theme.palette.background.paper}`,
+  },
+}));
+
+const OnlineStyledBadge = styled(Badge)(({ theme }) => ({
+  '& .MuiBadge-badge': {
+    backgroundColor: '#44b700',
+    color: '#44b700',
+    boxShadow: `0 0 0 2px ${theme.palette.background.paper}`,
+    '&::after': {
+      position: 'absolute',
+      top: 0,
+      left: 0,
+      width: '100%',
+      height: '100%',
+      borderRadius: '50%',
+      animation: 'ripple 1.2s infinite ease-in-out',
+      border: '1px solid currentColor',
+      content: '""',
+    },
+  },
+  '@keyframes ripple': {
+    '0%': {
+      transform: 'scale(.8)',
+      opacity: 1,
+    },
+    '100%': {
+      transform: 'scale(2.4)',
+      opacity: 0,
+    },
+  },
+}));
+
+export default function UserTableRow({ row, selected, onEditRow, onSelectRow, onDeleteRow, onBanRow, onUnbanRow, isOnline }) {
   if (!row) {
     return null; 
   }
@@ -44,8 +82,30 @@ export default function UserTableRow({ row, selected, onEditRow, onSelectRow, on
         </TableCell>
 
         <TableCell sx={{ display: 'flex', alignItems: 'center' }}>
-          <Avatar alt={username} src={avatarUrl || username[0]} sx={{ mr: 2 }} />
-          <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap' }}>
+          {
+            isOnline ?
+              <OnlineStyledBadge
+                overlap="circular"
+                anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+                variant="dot"
+                style={{
+                  marginRight: '10px'
+                }}
+              >
+                <Avatar alt={username} src={avatarUrl || username[0]} />
+              </OnlineStyledBadge> :
+              <OfflineStyledBadge
+                overlap="circular"
+                anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+                variant="dot"
+                style={{
+                  marginRight: '10px'
+                }}
+              >
+                <Avatar alt={username} src={avatarUrl || username[0]} />
+              </OfflineStyledBadge>
+          }
+          <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap'}}>
             <ListItemText
               primary={
                 <>

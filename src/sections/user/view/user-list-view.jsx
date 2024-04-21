@@ -41,6 +41,7 @@ import UserTableRow from '../user-table-row';
 import UserTableToolbar from '../user-table-toolbar';
 import UserTableFiltersResult from '../user-table-filters-result';
 import { apiInstance, userEndpoints } from 'src/apis';
+import { useWebSocketManager } from '../../../websocket/context/websocket_provider';
 // ----------------------------------------------------------------------
 
 const STATUS_OPTIONS = [{ value: 'all', label: 'All' }];
@@ -61,6 +62,8 @@ const defaultFilters = {
 // ----------------------------------------------------------------------
 
 export default function UserListView() {
+  const { wsManager } = useWebSocketManager() // get ws conn
+
   const { enqueueSnackbar } = useSnackbar();
 
   const table = useTable();
@@ -72,6 +75,7 @@ export default function UserListView() {
   const confirm = useBoolean();
 
   const [userData, setUserData] = useState([]);
+  const [onlineUsers, setOnlineUsers] = useState([])
 
   const [filters, setFilters] = useState(defaultFilters);
 
@@ -319,6 +323,18 @@ export default function UserListView() {
     };
   
     fetchUserData();
+
+    // fetch all users login status
+    wsManager.send(`{"type": "ALL_USERS_STATUS"}`)
+    wsManager.changeOnMessage((e)=>{
+      if (JSON.parse(e.data).type === "disconnect") {
+        const offlineUserId = JSON.parse(e.data).data
+        setOnlineUsers(prev => prev.filter((userid) => userid !== offlineUserId))
+      }
+
+      console.log('woccccccc!!!!::::'+e.data)
+      setOnlineUsers(JSON.parse(e.data).data)
+    })
   }, [enqueueSnackbar]);
  
   const handleBatchDelete = async () => {
@@ -463,7 +479,7 @@ export default function UserListView() {
                 />
 
                 <TableBody>
-                  {dataFiltered
+                  {onlineUsers && dataFiltered
                     .slice(
                       table.page * table.rowsPerPage,
                       table.page * table.rowsPerPage + table.rowsPerPage
@@ -477,6 +493,7 @@ export default function UserListView() {
                         onBanRow={() => handleBanUser(user.userId)}
                         onUnbanRow={() => handleUnbanUser(user.userId)}
                         onSelectRow={() => handleSelectRow(user.userId)}
+                        isOnline={onlineUsers?.includes(user.userId)}
                       />
                     ))}
 
