@@ -302,6 +302,7 @@ export default function UserListView() {
   const handleWsMessage = (e)=>{
     if (JSON.parse(e.data).Type === "new_online") {
       console.log("new!!!")
+      enqueueSnackbar("New user coming online")
       setOnlineUsers(pre => [...pre, JSON.parse(e.data).userID])
       return
     }
