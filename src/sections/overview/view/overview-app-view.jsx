@@ -20,6 +20,8 @@ import AppAreaInstalled from '../app-area-installed';
 import AppWidgetSummary from '../app-widget-summary';
 import AppCurrentDownload from '../app-current-download';
 
+import { apiInstance, endpoints } from 'src/apis';
+
 // ----------------------------------------------------------------------
 
 export default function OverviewAppView() {
@@ -27,12 +29,91 @@ export default function OverviewAppView() {
   const settings = useSettingsContext();
 
   const router = useRouter();
-  const admins = Admins
-  const [adminId, setAdminId] = useState(null)
+  const admins = Admins;
+  const [adminId, setAdminId] = useState(null);
 
   useEffect(()=>{
     setAdminId(sessionStorage.getItem('adminID'))
   },[])
+
+  const [currentDownloadData, setCurrentDownloadData] = useState({
+    series: [],
+    colors: []
+  });
+
+  const [profitData, setProfitData] = useState({
+    dates: [],
+    profits: [],
+    option: 'year'
+  });
+
+  const [counts, setCounts] = useState({
+    activityCount: 0,
+    membershipCount: 0,
+    participantCount: 0,
+  });  
+
+  const ACTIVITY_TAGS = [
+    { tagID: '10001', tagName: 'refresher' },
+    { tagID: '10002', tagName: 'supplement' },
+    { tagID: '10003', tagName: 'sports-outfit' },
+    { tagID: '10004', tagName: 'medical-support' },
+  ];
+
+  const tagIdToNameMap = ACTIVITY_TAGS.reduce((acc, tag) => {
+    acc[tag.tagID] = tag.tagName;
+    return acc;
+  }, {});
+  
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await apiInstance.get(endpoints.overview.tag);
+        const tagsData = response.data.Data.eachCount;
+
+        const formattedSeries = Object.entries(tagsData).map(([label, value]) => ({
+          label: tagIdToNameMap[label] || label,
+          value
+        }));
+        setCurrentDownloadData(prevData => ({
+          ...prevData,
+          series: formattedSeries
+        }));
+      } catch (error) {
+        console.error('Error fetching tag data:', error);
+      }
+    };
+  
+    fetchData();
+  }, []);
+
+  useEffect(() => {
+    const fetchCounts = async () => {
+      try {
+        const response = await apiInstance.get(endpoints.overview.count);
+        const { activityCount, membershipCount, participantCount } = response.data.Data;
+        setCounts({ activityCount, membershipCount, participantCount });
+      } catch (error) {
+        console.error('Error fetching counts:', error);
+      }
+    };
+  
+    fetchCounts();
+  }, []);
+
+  const fetchProfitData = async (option) => {
+    try {
+      const response = await apiInstance.get(endpoints.overview.profit(option));
+      const { dates, profits } = response.data.Data;
+      setProfitData({ dates, profits, option });
+    } catch (error) {
+      console.error('Error fetching profit data:', error);
+    }
+  };
+  
+  useEffect(() => {
+    fetchProfitData(profitData.option);
+  }, [profitData.option]);
 
   if (!adminId) {
     router.replace('/')
@@ -61,103 +142,62 @@ export default function OverviewAppView() {
 
         <Grid xs={12} md={4}>
           <AppWidgetSummary
-            title="Total Active Users"
-            percent={2.6}
-            total={18765}
+            title="Total Activities"
+            total={counts.activityCount}
+            percent={0.1}
             chart={{
-              series: [5, 18, 12, 51, 68, 11, 39, 37, 27, 20],
+              series: [],
             }}
           />
         </Grid>
 
         <Grid xs={12} md={4}>
           <AppWidgetSummary
-            title="Total Installed"
-            percent={0.2}
-            total={4876}
+            title="Total Memberships"
+            total={counts.membershipCount}
+            percent={0.1}
             chart={{
-              colors: [theme.palette.info.light, theme.palette.info.main],
-              series: [20, 41, 63, 33, 28, 35, 50, 46, 11, 26],
+              series: [],
             }}
           />
         </Grid>
 
         <Grid xs={12} md={4}>
           <AppWidgetSummary
-            title="Total Downloads"
-            percent={-0.1}
-            total={678}
+            title="Total Participants"
+            total={counts.participantCount}
+            percent={0.1}
             chart={{
-              colors: [theme.palette.warning.light, theme.palette.warning.main],
-              series: [8, 9, 31, 8, 16, 37, 8, 33, 46, 31],
+              series: [],
             }}
           />
         </Grid>
 
         <Grid xs={12} md={6} lg={4}>
           <AppCurrentDownload
-            title="Current Download"
-            chart={{
-              series: [
-                { label: 'Mac', value: 12244 },
-                { label: 'Window', value: 53345 },
-                { label: 'iOS', value: 44313 },
-                { label: 'Android', value: 78343 },
-              ],
-            }}
+            title="Number of activity tags"
+            chart={currentDownloadData}
           />
         </Grid>
 
         <Grid xs={12} md={6} lg={8}>
           <AppAreaInstalled
-            title="Area Installed"
-            subheader="(+43%) than last year"
+            title="Profit Over Time"
+            subheader={`Selected period: ${profitData.option}`}
             chart={{
-              categories: [
-                'Jan',
-                'Feb',
-                'Mar',
-                'Apr',
-                'May',
-                'Jun',
-                'Jul',
-                'Aug',
-                'Sep',
-                'Oct',
-                'Nov',
-                'Dec',
-              ],
+              categories: profitData.dates,
               series: [
                 {
-                  year: '2019',
-                  data: [
-                    {
-                      name: 'Asia',
-                      data: [10, 41, 35, 51, 49, 62, 69, 91, 148, 35, 51, 49],
-                    },
-                    {
-                      name: 'America',
-                      data: [10, 34, 13, 56, 77, 88, 99, 77, 45, 13, 56, 77],
-                    },
-                  ],
-                },
-                {
-                  year: '2020',
-                  data: [
-                    {
-                      name: 'Asia',
-                      data: [51, 35, 41, 10, 91, 69, 62, 148, 91, 69, 62, 49],
-                    },
-                    {
-                      name: 'America',
-                      data: [56, 13, 34, 10, 77, 99, 88, 45, 77, 99, 88, 77],
-                    },
-                  ],
+                  name: 'Profit',
+                  data: profitData.profits,
                 },
               ],
             }}
+            profitData={profitData}
+            fetchProfitData={fetchProfitData}
           />
         </Grid>
+
       </Grid>
     </Container>
   );

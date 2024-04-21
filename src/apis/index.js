@@ -51,5 +51,10 @@ export const endpoints = {
     all: `/activity/all`,
     deleteById: (activityId) => `/activity?activityID=${activityId}`,
     getById: (activityId) => `/activity?activityID=${activityId}`,
+  },
+  overview: {
+    tag: `/activity/tags`,
+    count: `/activity/counts`,
+    profit: (option) =>  `/activity/profit?option=${option}`,
   }
 };

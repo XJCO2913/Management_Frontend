@@ -14,7 +14,7 @@ import CustomPopover, { usePopover } from 'src/components/custom-popover';
 
 // ----------------------------------------------------------------------
 
-export default function AppAreaInstalled({ title, subheader, chart, ...other }) {
+export default function AppAreaInstalled({ title, subheader, chart, profitData, fetchProfitData, ...other }) {
   const theme = useTheme();
 
   const {
@@ -29,7 +29,13 @@ export default function AppAreaInstalled({ title, subheader, chart, ...other }) 
 
   const popover = usePopover();
 
-  const [seriesData, setSeriesData] = useState('2019');
+  const [seriesData, setSeriesData] = useState('year');
+
+  const timeOptions = [
+    { year: 'year' },
+    { year: 'month' },
+    { year: 'week' },
+  ];
 
   const chartOptions = useChart({
     colors: colors.map((colr) => colr[1]),
@@ -43,18 +49,31 @@ export default function AppAreaInstalled({ title, subheader, chart, ...other }) 
       },
     },
     xaxis: {
-      categories,
+      categories: profitData.dates,
     },
     ...options,
   });
 
+  {profitData.option === seriesData && (
+    <Chart
+      dir="ltr"
+      type="line"
+      series={[{ name: 'Profit', data: profitData.profits }]}
+      options={chartOptions}
+      width="100%"
+      height={364}
+    />
+  )}
+ 
   const handleChangeSeries = useCallback(
     (newValue) => {
       popover.onClose();
       setSeriesData(newValue);
+      fetchProfitData(newValue);
     },
-    [popover]
-  );
+    [popover, fetchProfitData]
+  );  
+  
 
   return (
     <>
@@ -85,24 +104,20 @@ export default function AppAreaInstalled({ title, subheader, chart, ...other }) 
           }
         />
 
-        {series.map((item) => (
-          <Box key={item.year} sx={{ mt: 3, mx: 3 }}>
-            {item.year === seriesData && (
-              <Chart
-                dir="ltr"
-                type="line"
-                series={item.data}
-                options={chartOptions}
-                width="100%"
-                height={364}
-              />
-            )}
-          </Box>
-        ))}
+        {profitData.option === seriesData && (
+          <Chart
+            dir="ltr"
+            type="line"
+            series={[{ name: 'Profit', data: profitData.profits }]}
+            options={chartOptions}
+            width="100%"
+            height={364}
+          />
+        )}
       </Card>
 
       <CustomPopover open={popover.open} onClose={popover.onClose} sx={{ width: 140 }}>
-        {series.map((option) => (
+        {timeOptions.map((option) => (
           <MenuItem
             key={option.year}
             selected={option.year === seriesData}
@@ -120,4 +135,6 @@ AppAreaInstalled.propTypes = {
   chart: PropTypes.object,
   subheader: PropTypes.string,
   title: PropTypes.string,
+  profitData: PropTypes.object,
+  fetchProfitData: PropTypes.func,
 };
