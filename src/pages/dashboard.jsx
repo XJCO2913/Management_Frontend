@@ -13,7 +13,7 @@ export default function DashboardPage() {
       return
     }
 
-    const ws = new WebSocketManager('ws://localhost:8080/ws')
+    const ws = new WebSocketManager('ws://127.0.0.1:8080/ws')
     
     // register global websocket connection
     setWsManager(ws)

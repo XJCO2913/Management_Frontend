@@ -299,6 +299,17 @@ export default function UserListView() {
     }
   };
   
+  const handleWsMessage = (e)=>{
+    if (JSON.parse(e.data).Type === "new_online") {
+      console.log("new!!!")
+      setOnlineUsers(pre => [...pre, JSON.parse(e.data).userID])
+      return
+    }
+    console.log('old!!!!')
+    console.log('woccccccc!!!!::::'+JSON.parse(e.data).Type)
+    setOnlineUsers(JSON.parse(e.data).onlineUsers)
+  }
+  
   useEffect(() => {
     const fetchUserData = async () => {
       try {
@@ -325,16 +336,12 @@ export default function UserListView() {
     fetchUserData();
 
     // fetch all users login status
-    wsManager.send(`{"type": "ALL_USERS_STATUS"}`)
-    wsManager.changeOnMessage((e)=>{
-      if (JSON.parse(e.data).type === "disconnect") {
-        const offlineUserId = JSON.parse(e.data).data
-        setOnlineUsers(prev => prev.filter((userid) => userid !== offlineUserId))
-      }
-
-      console.log('woccccccc!!!!::::'+e.data)
-      setOnlineUsers(JSON.parse(e.data).data)
-    })
+    wsManager.changeOnMessage(handleWsMessage)
+    const msg = {
+      Type: "user_status",
+      SenderID: "64691a68-cd4c-11ee-bd80-02be5496381c",
+    }
+    wsManager.send(JSON.stringify(msg))
   }, [enqueueSnackbar]);
  
   const handleBatchDelete = async () => {

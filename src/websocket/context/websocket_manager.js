@@ -8,11 +8,13 @@ export class WebSocketManager {
         if (!this.socket || this.socket.readyState === WebSocket.CLOSED) {
             this.socket = new WebSocket(this.url);
             this.socket.onopen = () => {
-                const token = sessionStorage.getItem("accessToken")
-                const adminId = sessionStorage.getItem("adminID")
+                const connectMsg = {
+                    "Type": "connect",
+                    "SenderID": "64691a68-cd4c-11ee-bd80-02be5496381c",
+                    "Data": {},
+                }
 
-                this.socket.send(`我是 ${token}, 我是${adminId}号管理员`)
-                console.log('WebSocket Connected');
+                this.socket.send(JSON.stringify(connectMsg))
             };
             this.socket.onclose = () => {
                 console.log('WebSocket Disconnected');
