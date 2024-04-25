@@ -41,6 +41,7 @@ import UserTableRow from '../user-table-row';
 import UserTableToolbar from '../user-table-toolbar';
 import UserTableFiltersResult from '../user-table-filters-result';
 import { apiInstance, userEndpoints } from 'src/apis';
+import { useWebSocketManager } from '../../../websocket/context/websocket_provider';
 // ----------------------------------------------------------------------
 
 const STATUS_OPTIONS = [{ value: 'all', label: 'All' }];
@@ -61,6 +62,8 @@ const defaultFilters = {
 // ----------------------------------------------------------------------
 
 export default function UserListView() {
+  const { wsManager } = useWebSocketManager() // get ws conn
+
   const { enqueueSnackbar } = useSnackbar();
 
   const table = useTable();
@@ -72,6 +75,7 @@ export default function UserListView() {
   const confirm = useBoolean();
 
   const [userData, setUserData] = useState([]);
+  const [onlineUsers, setOnlineUsers] = useState([])
 
   const [filters, setFilters] = useState(defaultFilters);
 
@@ -295,6 +299,18 @@ export default function UserListView() {
     }
   };
   
+  const handleWsMessage = (e)=>{
+    if (JSON.parse(e.data).Type === "new_online") {
+      console.log("new!!!")
+      enqueueSnackbar("New user coming online")
+      setOnlineUsers(pre => [...pre, JSON.parse(e.data).userID])
+      return
+    }
+    console.log('old!!!!')
+    console.log('woccccccc!!!!::::'+JSON.parse(e.data).Type)
+    setOnlineUsers(JSON.parse(e.data).onlineUsers)
+  }
+  
   useEffect(() => {
     const fetchUserData = async () => {
       try {
@@ -319,6 +335,14 @@ export default function UserListView() {
     };
   
     fetchUserData();
+
+    // fetch all users login status
+    wsManager.changeOnMessage(handleWsMessage)
+    const msg = {
+      Type: "user_status",
+      SenderID: "64691a68-cd4c-11ee-bd80-02be5496381c",
+    }
+    wsManager.send(JSON.stringify(msg))
   }, [enqueueSnackbar]);
  
   const handleBatchDelete = async () => {
@@ -463,7 +487,7 @@ export default function UserListView() {
                 />
 
                 <TableBody>
-                  {dataFiltered
+                  {onlineUsers && dataFiltered
                     .slice(
                       table.page * table.rowsPerPage,
                       table.page * table.rowsPerPage + table.rowsPerPage
@@ -477,6 +501,7 @@ export default function UserListView() {
                         onBanRow={() => handleBanUser(user.userId)}
                         onUnbanRow={() => handleUnbanUser(user.userId)}
                         onSelectRow={() => handleSelectRow(user.userId)}
+                        isOnline={onlineUsers?.includes(user.userId)}
                       />
                     ))}
 
