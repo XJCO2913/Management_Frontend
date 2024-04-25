@@ -14,7 +14,7 @@ export default function DashboardPage() {
       return
     }
 
-    const ws = new WebSocketManager('ws://127.0.0.1:8080/ws')
+    const ws = new WebSocketManager('ws://43.136.232.116:5000/ws')
     
     // register global websocket connection
     setWsManager(ws)
