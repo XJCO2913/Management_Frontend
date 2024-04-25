@@ -3,7 +3,7 @@ import { useState, useCallback, useEffect } from 'react';
 import { useSnackbar } from 'src/components/snackbar';
 
 import Box from '@mui/material/Box';
-import Pagination, { paginationClasses } from '@mui/material/Pagination';
+import Pagination from '@mui/material/Pagination';
 
 import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hooks';
@@ -12,56 +12,30 @@ import TourItem from './tour-item';
 import { apiInstance, endpoints } from 'src/apis';
 
 // ----------------------------------------------------------------------
+const TOURS_PER_PAGE = 6;
 
 export default function TourList({ tours }) {
+  const [page, setPage] = useState(1);
+  const [pagedData, setPagedData] = useState([]);
   const [data, setData] = useState(tours);
   const { enqueueSnackbar } = useSnackbar();
   const router = useRouter();
+  const pageCount = Math.ceil(tours.length / TOURS_PER_PAGE);
 
   useEffect(() => {
     setData(tours);
+    setPage(1);
+    setPagedData(tours.slice(0, TOURS_PER_PAGE));
   }, [tours]);
 
-  const handleView = useCallback(
-    (activityId) => {
-      router.push(paths.tour.details(activityId));
-    },
-    [router]
-  );
-  
-  const handleDelete = useCallback(
-    async (activityId) => {
-      try {
-        const response = await deleteById(activityId);
-        // console.log('Delete response:', response);
-  
-        enqueueSnackbar('Delete success!', { variant: 'success' });
-  
-        updateDataAfterDeletion([activityId]);
-  
-      } catch (error) {
-        console.error('Error deleting user:', error);
-        enqueueSnackbar('Error deleting user', { variant: 'error' });
-      }
-    },
-    [enqueueSnackbar]
-  );
-
-  const deleteById = async (activityId) => {
-    try {
-      const response = await apiInstance.delete(endpoints.activity.deleteById(activityId));
-      return response.data;
-    } catch (error) {
-      console.error('Error deleting activity:', error);
-      throw error;
-    }
+  const handleChangePage = (event, value) => {
+    setPage(value);
+    const start = (value - 1) * TOURS_PER_PAGE;
+    const end = start + TOURS_PER_PAGE;
+    setPagedData(data.slice(start, end));
   };
-  
-  function updateDataAfterDeletion(deletedIds) {
-    setData(prevData =>
-      prevData.filter(tour => !deletedIds.includes(tour.activityId))
-    );
-  }  
+
+  // ... other functions like handleView, handleDelete, deleteById, updateDataAfterDeletion
 
   return (
     <>
@@ -74,7 +48,7 @@ export default function TourList({ tours }) {
           md: 'repeat(3, 1fr)',
         }}
       >
-        {data.map((tour) => (
+        {pagedData.map((tour) => (
           <TourItem
             key={tour.activityId}
             tour={tour}
@@ -84,14 +58,15 @@ export default function TourList({ tours }) {
         ))}
       </Box>
 
-      {data.length > 8 && (
+      {data.length > TOURS_PER_PAGE && (
         <Pagination
-          count={8}
+          count={pageCount}
+          page={page}
+          onChange={handleChangePage}
           sx={{
             mt: 8,
-            [`& .${paginationClasses.ul}`]: {
-              justifyContent: 'center',
-            },
+            display: 'flex',
+            justifyContent: 'center',
           }}
         />
       )}

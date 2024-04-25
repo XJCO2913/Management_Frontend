@@ -7,7 +7,7 @@ export const TEST_HOST_API = 'http://43.136.232.116:5000/test'
 
 
 export const apiInstance = axios.create({
-  baseURL: HOST_API,
+  baseURL: 'http://127.0.0.1:8080/api',
 });
 
 apiInstance.interceptors.request.use(function (config) {
@@ -51,5 +51,10 @@ export const endpoints = {
     all: `/activity/all`,
     deleteById: (activityId) => `/activity?activityID=${activityId}`,
     getById: (activityId) => `/activity?activityID=${activityId}`,
+  },
+  overview: {
+    tag: `/activity/tags`,
+    count: `/activity/counts`,
+    profit: (option) =>  `/activity/profit?option=${option}`,
   }
 };

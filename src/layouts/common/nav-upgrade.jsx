@@ -5,9 +5,6 @@ import Avatar from '@mui/material/Avatar';
 import Typography from '@mui/material/Typography';
 import { Admins } from '../../sections/login/admin-login-view';
 
-import { useMockedUser } from 'src/hooks/use-mocked-user';
-
-import Label from 'src/components/label';
 import { useRouter } from 'src/routes/hooks';
 import { useEffect, useState } from 'react';
 
