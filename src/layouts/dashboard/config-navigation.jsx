@@ -32,6 +32,7 @@ export function useNavData() {
             icon: <Iconify icon="lucide:user-search" />, 
             children: [
               { title: t('list'), path: paths.user.list },
+              { title: t('organizer'), path: paths.user.organizer },
               // { title: t('edit'), path: paths.user.edit },
             ],
           },

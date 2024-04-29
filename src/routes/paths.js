@@ -20,6 +20,7 @@ export const paths = {
   overview: '/dashboard',
   user: {
     list: '/user/list',
+    organizer: '/user/organizer',
     edit: (id) => `/user/${id}/edit`,
   },
   tour: {
