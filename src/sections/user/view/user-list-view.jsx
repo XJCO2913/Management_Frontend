@@ -1,5 +1,5 @@
 import isEqual from 'lodash/isEqual';
-import { useState, useCallback, useEffect, useNavigate } from 'react';
+import { useState, useCallback, useEffect, useNavigate, useMemo } from 'react';
 
 import Tab from '@mui/material/Tab';
 import Tabs from '@mui/material/Tabs';
@@ -44,7 +44,12 @@ import { apiInstance, userEndpoints } from 'src/apis';
 import { useWebSocketManager } from '../../../websocket/context/websocket_provider';
 // ----------------------------------------------------------------------
 
-const STATUS_OPTIONS = [{ value: 'all', label: 'All' }];
+const STATUS_OPTIONS = [
+  { value: 'all', label: 'All' },
+  { value: 'banned', label: 'Banned' },
+  { value: 'active', label: 'Active' }
+];
+
 
 const TABLE_HEAD = [
   { id: 'checkbox', label: ''},
@@ -318,10 +323,10 @@ export default function UserListView() {
         if (userData.status_code === 0) {
           const userStatuses = await fetchUserStatuses();
           const updatedUserData = userData.Data.map(user => {
-            const status = userStatuses.find(status => status.userId === user.userId);
+            const status = userStatuses.find(status => status.UserID === user.userId);
             return {
               ...user,
-              isBanned: status ? status.isBanned : false,
+              isBanned: status ? status.IsBanned : false,
             };
           });
           setUserData(updatedUserData);
@@ -370,7 +375,25 @@ export default function UserListView() {
       prevUserData.filter(user => !deletedUserIds.includes(user.userId))
     );
   }  
+    
+  const [currentTab, setCurrentTab] = useState('all');
+
+  const filteredData = useMemo(() => {
+    switch (currentTab) {
+      case 'banned':
+        return userData.filter(user => user.isBanned);
+      case 'active':
+        return userData.filter(user => !user.isBanned);
+      case 'all':
+      default:
+        return userData;
+    }
+  }, [currentTab, userData]); 
   
+  const handleTabChange = (event, newValue) => {
+    setCurrentTab(newValue);
+  };
+
   return (
     <>
       <Container maxWidth={settings.themeStretch ? false : 'lg'}>
@@ -398,7 +421,8 @@ export default function UserListView() {
 
         <Card>
           <Tabs
-            value="all"
+            value={currentTab}
+            onChange={handleTabChange}
             sx={{
               px: 2.5,
               boxShadow: (theme) => `inset 0 -2px 0 0 ${alpha(theme.palette.grey[500], 0.08)}`,
@@ -407,13 +431,13 @@ export default function UserListView() {
             {STATUS_OPTIONS.map((tab) => (
               <Tab
                 key={tab.value}
-                iconPosition="end"
                 value={tab.value}
                 label={tab.label}
+                iconPosition="end"
               />
             ))}
           </Tabs>
-          
+
           <UserTableToolbar
             filters={filters}
             onFilters={handleFilters}
@@ -487,7 +511,7 @@ export default function UserListView() {
                 />
 
                 <TableBody>
-                  {onlineUsers && dataFiltered
+                  {onlineUsers && filteredData
                     .slice(
                       table.page * table.rowsPerPage,
                       table.page * table.rowsPerPage + table.rowsPerPage
