@@ -288,7 +288,6 @@ export default function OrgListView() {
                         row={user}
                         agreeRow={() => agreeUser(user.userId)}
                         refuseRow={() => refuseUser(user.userId)}
-                        onSelectRow={() => handleSelectRow(user.userId)}
                         isOnline={onlineUsers?.includes(user.userId)}
                       />
                     ))}
