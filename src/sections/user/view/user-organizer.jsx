@@ -119,7 +119,7 @@ export default function OrgListView() {
   };
 
   const updateUserStatus = (userId, newStatus) => {
-    setUsers(prevUsers => prevUsers.map(user => user.userId === userId ? { ...user, status: newStatus } : user));
+    setUserData(prevUsers => prevUsers.map(user => user.userId === userId ? { ...user, status: newStatus } : user));
   };
 
   const agreeById = async (userId) => {
@@ -217,14 +217,6 @@ export default function OrgListView() {
     if (currentTab === 'all') return true;
     return user.status === currentTab;
   });
-  
-  useEffect(() => {
-    const fetchData = async () => {
-      const response = await apiInstance.get(endpoints.organize.all);
-      setUsers(response.data.map(user => ({ ...user, status: 'untreated' })));
-    };
-    fetchData();
-  }, []);
 
   const handleTabChange = (event, newValue) => {
     setCurrentTab(newValue);
