@@ -55,6 +55,11 @@ export const endpoints = {
   overview: {
     tag: `/activity/tags`,
     count: `/activity/counts`,
-    profit: (option) =>  `/activity/profit?option=${option}`,
+    profit: (option) => `/activity/profit?option=${option}`,
+  },
+  organize: {
+    all: `/org`,
+    agree: (userId) => `/org/agree?userId=${userId}`,
+    refuse: (userId) => `/org/refuse?userId=${userId}`,
   }
 };

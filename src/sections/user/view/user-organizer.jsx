@@ -37,10 +37,10 @@ import {
   TablePaginationCustom,
 } from 'src/components/table';
 
-import UserTableRow from '../user-table-row';
+import OrgTableRow from '../org-table-row';
 import UserTableToolbar from '../user-table-toolbar';
 import UserTableFiltersResult from '../user-table-filters-result';
-import { apiInstance, userEndpoints } from 'src/apis';
+import { apiInstance, endpoints } from 'src/apis';
 import { useWebSocketManager } from '../../../websocket/context/websocket_provider';
 // ----------------------------------------------------------------------
 
@@ -51,14 +51,10 @@ const STATUS_OPTIONS = [
   { value: 'refused', label: 'Refused' },
 ];
 
-
 const TABLE_HEAD = [
   { id: 'checkbox', label: ''},
   { id: 'username', label: 'Username' },
-  { id: 'gender', label: 'Gender' },
-  { id: 'birthday', label: 'Birthday' },
-  { id: 'region', label: 'Region' },
-  { id: '', width: 88 },
+  { id: '', label: 'Operation', width: 88 },
 ];
 
 const defaultFilters = {
@@ -81,7 +77,7 @@ export default function OrgListView() {
   const confirm = useBoolean();
 
   const [userData, setUserData] = useState([]);
-  const [onlineUsers, setOnlineUsers] = useState([])
+  const [onlineUsers, setOnlineUsers] = useState([]);
 
   const [filters, setFilters] = useState(defaultFilters);
 
@@ -112,9 +108,9 @@ export default function OrgListView() {
     [table]
   );
 
-  const fetchAllUsers = async () => {
+  const fetchAllOrgrs = async () => {
     try {
-      const response = await apiInstance.get(userEndpoints.fetchAllUsers);
+      const response = await apiInstance.get(endpoints.organize.all);
       return response.data;
     } catch (error) {
       console.error('Error fetching all users:', error);
@@ -122,189 +118,66 @@ export default function OrgListView() {
     }
   };
 
-  const deleteUserById = async (userId) => {
-    try {
-      const response = await apiInstance.delete(userEndpoints.deleteUserById(userId));
-      return response.data;
-    } catch (error) {
-      console.error('Error deleting user:', error);
-      throw error;
-    }
+  const updateUserStatus = (userId, newStatus) => {
+    setUsers(prevUsers => prevUsers.map(user => user.userId === userId ? { ...user, status: newStatus } : user));
   };
 
-  const deleteUserByIds = async (userIdsString) => {
+  const agreeById = async (userId) => {
     try {
-      const response = await apiInstance.delete(userEndpoints.deleteUserByIds(userIdsString));
-      return response.data;
-    } catch (error) {
-      console.error('Error deleting users:', error);
-      throw error;
-    }
-  };
-
-  const banUserById = async (userId) => {
-    try {
-      const response = await apiInstance.post(userEndpoints.banUserById(userId));
+      const response = await apiInstance.post(endpoints.organize.agree(userId));
+      updateUserStatus(userId, 'agreed');
       return response.data;
     } catch (error) {
       if (error.response.data.status_msg) {
-        console.error('Error banning user:', error.response.data.status_msg);
+        console.error('Error agree application:', error.response.data.status_msg);
         throw new Error(error.response.data.status_msg);
       } else {
-        console.error('Error banning user:', error);
+        console.error('Error agree application:', error);
         throw error;
       }
     }
   };
 
-  const unbanUserById = async (userId) => {
+  const refuseById = async (userId) => {
     try {
-      const response = await apiInstance.post(userEndpoints.unbanUserById(userId));
+      const response = await apiInstance.post(endpoints.organize.refuse(userId));
+      updateUserStatus(userId, 'refused');
       return response.data;
     } catch (error) {
       if (error.response.data.status_msg) {
-        console.error('Error unbanning user:', error.response.data.status_msg);
+        console.error('Error refuse application:', error.response.data.status_msg);
         throw new Error(error.response.data.status_msg);
       } else {
-        console.error('Error unbanning user:', error);
+        console.error('Error refuse application:', error);
         throw error;
       }
     }
   };
 
-  const handleResetFilters = useCallback(() => {
-    setFilters(defaultFilters);
-  }, []);
-
-  const handleSelectRow = (userId) => {
-    setSelectedUserIds((prevSelected) => {
-      const isSelected = prevSelected.includes(userId);
-      if (isSelected) {
-        return prevSelected.filter((id) => id !== userId);
-      } else {
-        return [...prevSelected, userId];
-      }
-    });
-  };
-
-  const [selectedUserIds, setSelectedUserIds] = useState([]);
-   
-  const handleEditRow = useCallback(
-    async (userId) => {
-    router.push(paths.user.edit(userId)); 
-  }, [router]);
-
-  const handleDeleteRow = useCallback(
-    async (userId) => {
-      try {
-        const response = await deleteUserById(userId);
-        console.log('Delete response:', response);
-  
-        enqueueSnackbar('Delete success!', { variant: 'success' });
-  
-        updateUserDataAfterDeletion([userId]);
-  
-      } catch (error) {
-        enqueueSnackbar('Error deleting user', { variant: 'error' });
-      }
-    },
-    [enqueueSnackbar]
-  );
-
-  const handleBanUser = useCallback(async (userId) => {
+  const agreeUser = useCallback(async (userId) => {
     try {
-      const response = await banUserById(userId);
+      const response = await agreeById(userId);
       if (response.status_code === 0) {
-        setUserData((currentUsers) =>
-          currentUsers.map((user) =>
-            user.userId === userId ? { ...user, isBanned: true } : user
-          )
-        );
-        enqueueSnackbar('User banned successfully!', { variant: 'success' });
+        enqueueSnackbar('User agreed successfully!', { variant: 'success' });
       }
     } catch (error) {
-      const errorMessage = error.message || 'Error banning users';
+      const errorMessage = error.message || 'Error agree application';
       enqueueSnackbar(errorMessage, { variant: 'error' });
     }
   }, [enqueueSnackbar, setUserData]);
   
-  const handleUnbanUser = useCallback(async (userId) => {
+  const refuseUser = useCallback(async (userId) => {
     try {
-      const response = await unbanUserById(userId);
+      const response = await refuseById(userId);
       if (response.status_code === 0) {
-        setUserData((currentUsers) =>
-          currentUsers.map((user) =>
-            user.userId === userId ? { ...user, isBanned: false } : user
-          )
-        );
-        enqueueSnackbar('User unbanned successfully!', { variant: 'success' });
+        enqueueSnackbar('User refuseed successfully!', { variant: 'success' });
       }
     } catch (error) {
-      const errorMessage = error.message || 'Error unbanning users';
+      const errorMessage = error.message || 'Error refuse application';
       enqueueSnackbar(errorMessage, { variant: 'error' });
     }
   }, [enqueueSnackbar, setUserData]);  
 
-  const handleBatchBan = async () => {
-    if (selectedUserIds.length === 0) {
-      enqueueSnackbar('No users selected', { variant: 'warning' });
-      return;
-    }
-  
-    try {
-      const response = await apiInstance.post(userEndpoints.banUserByIds(selectedUserIds.join('|')));
-      console.log('Batch ban response:', response);
-      setUserData(currentUsers =>
-        currentUsers.map(user =>
-          selectedUserIds.includes(user.userId) ? { ...user, isBanned: true } : user
-        )
-      );
-      enqueueSnackbar('Users banned successfully', { variant: 'success' });
-    } catch (error) {
-        const errorMessage = error.response && error.response.data && error.response.data.status_msg
-        ? error.response.data.status_msg
-        : 'Error banning users';
-      enqueueSnackbar(errorMessage, { variant: 'error' });
-    }
-  };
-  
-  const handleBatchUnban = async () => {
-    if (selectedUserIds.length === 0) {
-      enqueueSnackbar('No users selected', { variant: 'warning' });
-      return;
-    }
-  
-    try {
-      const response = await apiInstance.post(userEndpoints.unbanUserByIds(selectedUserIds.join('|')));
-      console.log('Batch unban response:', response);
-      setUserData(currentUsers =>
-        currentUsers.map(user =>
-          selectedUserIds.includes(user.userId) ? { ...user, isBanned: false } : user
-        )
-      );
-      enqueueSnackbar('Users unbanned successfully', { variant: 'success' });
-    } catch (error) {
-        const errorMessage = error.response && error.response.data && error.response.data.status_msg
-        ? error.response.data.status_msg
-        : 'Error unbanning users';
-      enqueueSnackbar(errorMessage, { variant: 'error' });
-    }
-  };  
-
-  const fetchUserStatuses = async () => {
-    try {
-      const response = await apiInstance.get(userEndpoints.AllUserStatus);
-        if (response.data.status_code === 0) {
-          return response.data.Data; 
-        } else {
-          throw new Error(response.data.status_msg);
-        }
-    } catch (error) {
-      console.error('Error fetching user statuses:', error);
-      throw error;
-    }
-  };
-  
   const handleWsMessage = (e)=>{
     if (JSON.parse(e.data).Type === "new_online") {
       console.log("new!!!")
@@ -312,22 +185,17 @@ export default function OrgListView() {
       setOnlineUsers(pre => [...pre, JSON.parse(e.data).userID])
       return
     }
-    console.log('old!!!!')
-    console.log('woccccccc!!!!::::'+JSON.parse(e.data).Type)
     setOnlineUsers(JSON.parse(e.data).onlineUsers)
   }
   
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        const userData = await fetchAllUsers();
+        const userData = await fetchAllOrgrs();
         if (userData.status_code === 0) {
-          const userStatuses = await fetchUserStatuses();
-          const updatedUserData = userData.Data.map(user => {
-            const status = userStatuses.find(status => status.UserID === user.userId);
+          const updatedUserData = userData.Data.map(user => {            
             return {
-              ...user,
-              isBanned: status ? status.IsBanned : false,
+              ...user
             };
           });
           setUserData(updatedUserData);
@@ -341,58 +209,23 @@ export default function OrgListView() {
     };
   
     fetchUserData();
-
-    // fetch all users login status
-    wsManager.changeOnMessage(handleWsMessage)
-    const msg = {
-      Type: "user_status",
-      SenderID: "64691a68-cd4c-11ee-bd80-02be5496381c",
-    }
-    wsManager.send(JSON.stringify(msg))
   }, [enqueueSnackbar]);
- 
-  const handleBatchDelete = async () => {
-    if (selectedUserIds.length === 0) {
-      enqueueSnackbar('No users selected', { variant: 'warning' });
-      return;
-    }
   
-    try {
-      const response = await deleteUserByIds(selectedUserIds.join('|'));
-      console.log('Batch delete response:', response);
-  
-      updateUserDataAfterDeletion(selectedUserIds);
-  
-      setSelectedUserIds([]);
-  
-      enqueueSnackbar('Users deleted successfully', { variant: 'success' });
-    } catch (error) {
-      enqueueSnackbar('Error deleting users', { variant: 'error' });
-    }
-  };
-  
-  function updateUserDataAfterDeletion(deletedUserIds) {
-    setUserData(prevUserData =>
-      prevUserData.filter(user => !deletedUserIds.includes(user.userId))
-    );
-  }  
-    
   const [currentTab, setCurrentTab] = useState('all');
 
-  const filteredData = useMemo(() => {
-    switch (currentTab) {
-      case 'agreed':
-        return userData.filter(user => user.isBanned);
-      case 'refused':
-        return userData.filter(user => !user.isBanned);
-      case 'untreated':
-        return userData.filter(user => !user.isBanned);
-      case 'all':
-      default:
-        return userData;
-    }
-  }, [currentTab, userData]); 
+  const filteredData = userData.filter(user => {
+    if (currentTab === 'all') return true;
+    return user.status === currentTab;
+  });
   
+  useEffect(() => {
+    const fetchData = async () => {
+      const response = await apiInstance.get(endpoints.organize.all);
+      setUsers(response.data.map(user => ({ ...user, status: 'untreated' })));
+    };
+    fetchData();
+  }, []);
+
   const handleTabChange = (event, newValue) => {
     setCurrentTab(newValue);
   };
@@ -431,16 +264,6 @@ export default function OrgListView() {
             ))}
           </Tabs>
 
-          {canReset && (
-            <UserTableFiltersResult
-              filters={filters}
-              onFilters={handleFilters}
-              onResetFilters={handleResetFilters}
-              results={dataFiltered.length}
-              sx={{ p: 2.5, pt: 0 }}
-            />
-          )}
-
           <TableContainer sx={{ position: 'relative', overflow: 'unset' }}>
             <TableSelectedAction
               dense={table.dense}
@@ -452,44 +275,7 @@ export default function OrgListView() {
                   dataFiltered.map((user) => user.userId)
                 )
               }
-              action={
-                <Tooltip title="Delete">
-                  <IconButton color="primary" onClick={confirm.onTrue}>
-                    <Iconify icon="solar:trash-bin-trash-bold" />
-                  </IconButton>
-                </Tooltip>
-              }
             />
-
-            {
-              selectedUserIds.length > 0 && (
-                <>
-                  <Tooltip title="Delete selected users">
-                    <IconButton onClick={handleBatchDelete}
-                      sx={{ color: 'error.main', ml: 1 }}
-                    >
-                      <Iconify icon="solar:trash-bin-trash-bold" />
-                    </IconButton>
-                  </Tooltip>
-
-                  <Tooltip title="Ban selected users">
-                    <IconButton onClick={handleBatchBan}
-                      sx={{ color: 'warning.main' }}
-                    >
-                      <Iconify icon="eva:slash-outline" />
-                    </IconButton>
-                  </Tooltip>
-
-                  <Tooltip title="Unban selected users">
-                    <IconButton onClick={handleBatchUnban}
-                      sx={{ color: 'success.main' }}
-                    >
-                      <Iconify icon="eva:checkmark-circle-2-outline" />
-                    </IconButton>
-                  </Tooltip>
-                </>
-              )
-            }
 
             <Scrollbar>
               <Table size={table.dense ? 'small' : 'medium'} sx={{ minWidth: 960 }}>
@@ -505,13 +291,11 @@ export default function OrgListView() {
                       table.page * table.rowsPerPage + table.rowsPerPage
                     )
                     .map((user) => (
-                      <UserTableRow
+                      <OrgTableRow
                         key={user.userId}
                         row={user}
-                        onDeleteRow={() => handleDeleteRow(user.userId)}
-                        onEditRow={() => handleEditRow(user.userId)}
-                        onBanRow={() => handleBanUser(user.userId)}
-                        onUnbanRow={() => handleUnbanUser(user.userId)}
+                        agreeRow={() => agreeUser(user.userId)}
+                        refuseRow={() => refuseUser(user.userId)}
                         onSelectRow={() => handleSelectRow(user.userId)}
                         isOnline={onlineUsers?.includes(user.userId)}
                       />
@@ -541,27 +325,6 @@ export default function OrgListView() {
         </Card>
       </Container>
 
-      <ConfirmDialog
-        open={confirm.value}
-        onClose={confirm.onFalse}
-        title="Delete"
-        content={
-          <>
-            Are you sure want to delete <strong> {table.selected.length} </strong> items?
-          </>
-        }
-        action={
-          <Button
-            variant="contained"
-            color="error"
-            onClick={() => {
-              confirm.onFalse();
-            }}
-          >
-            Delete
-          </Button>
-        }
-      />
     </>
   );
 }
