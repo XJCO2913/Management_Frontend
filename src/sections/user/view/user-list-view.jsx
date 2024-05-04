@@ -379,17 +379,28 @@ export default function UserListView() {
   const [currentTab, setCurrentTab] = useState('all');
 
   const filteredData = useMemo(() => {
+    let dataByStatus = userData;
     switch (currentTab) {
       case 'banned':
-        return userData.filter(user => user.isBanned);
+        dataByStatus = userData.filter(user => user.isBanned);
+        break;
       case 'active':
-        return userData.filter(user => !user.isBanned);
+        dataByStatus = userData.filter(user => !user.isBanned);
+        break;
       case 'all':
       default:
-        return userData;
+        dataByStatus = userData;
+        break;
     }
-  }, [currentTab, userData]); 
   
+    const dataByFilters = applyFilter({
+      inputData: dataByStatus,
+      filters,
+    });
+  
+    return dataByFilters;
+  }, [currentTab, userData, filters]);
+   
   const handleTabChange = (event, newValue) => {
     setCurrentTab(newValue);
   };
@@ -531,7 +542,6 @@ export default function UserListView() {
 
                   <TableEmptyRows
                     height={denseHeight}
-                    
                     emptyRows={emptyRows(table.page, table.rowsPerPage, dataFiltered.length)}
                   />
 
