@@ -132,7 +132,9 @@ export default function OrgTableRow({ row, selected, onSelectRow, agreeRow, refu
               </Button>
             </>
           ) : (
-            <Button disabled>{row.status === 'agreed' ? '已同意' : '已拒绝'}</Button>
+            <Button disabled sx={{ margin: '10px' }}>
+              {row.status === 'agreed' ? '已同意' : '已拒绝'}
+            </Button>
           )}
         </TableCell>
       </TableRow>
