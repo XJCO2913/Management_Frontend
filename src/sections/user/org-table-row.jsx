@@ -104,7 +104,7 @@ export default function OrgTableRow({ row, selected, onSelectRow, agreeRow, refu
                   {username}
                 </>
               }
-              secondary={`Member since ${new Date(membershipTime * 1000).toLocaleDateString()}`}
+              secondary={`Membership will expire at ${new Date(membershipTime * 1000).toLocaleDateString()}`}
               primaryTypographyProps={{ typography: 'body2', display: 'flex', alignItems: 'center', flexWrap: 'wrap' }}
               secondaryTypographyProps={{
                 component: 'span',
@@ -133,7 +133,7 @@ export default function OrgTableRow({ row, selected, onSelectRow, agreeRow, refu
             </>
           ) : (
             <Button disabled sx={{ margin: '10px' }}>
-              {row.status === 'agreed' ? '已同意' : '已拒绝'}
+              {row.status === 'agreed' ? 'Agreed' : 'Refused'}
             </Button>
           )}
         </TableCell>
