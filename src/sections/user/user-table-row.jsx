@@ -119,7 +119,7 @@ export default function UserTableRow({ row, selected, onEditRow, onSelectRow, on
                   </Label>
                 </>
               }
-              secondary={`Member since ${new Date(membershipTime * 1000).toLocaleDateString()}`}
+              secondary={`Membership will expire at ${new Date(membershipTime * 1000).toLocaleDateString()}`}
               primaryTypographyProps={{ typography: 'body2', display: 'flex', alignItems: 'center', flexWrap: 'wrap' }}
               secondaryTypographyProps={{
                 component: 'span',

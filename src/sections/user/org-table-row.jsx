@@ -58,7 +58,7 @@ const OnlineStyledBadge = styled(Badge)(({ theme }) => ({
   },
 }));
 
-export default function OrgTableRow({ row, selected, onSelectRow, agreeRow, refuseRow, isOnline }) {
+export default function OrgTableRow({ row, selected, agreeRow, refuseRow, isOnline }) {
   if (!row) {
     return null; 
   }
@@ -70,7 +70,7 @@ export default function OrgTableRow({ row, selected, onSelectRow, agreeRow, refu
     <>
       <TableRow hover selected={selected}>
         <TableCell padding="checkbox">
-          <Checkbox checked={selected} onChange={onSelectRow}/>
+          <Checkbox checked={selected}/>
         </TableCell>
 
         <TableCell sx={{ display: 'flex', alignItems: 'center' }}>
@@ -104,7 +104,7 @@ export default function OrgTableRow({ row, selected, onSelectRow, agreeRow, refu
                   {username}
                 </>
               }
-              secondary={`Member since ${new Date(membershipTime * 1000).toLocaleDateString()}`}
+              secondary={`Membership will expire at ${new Date(membershipTime * 1000).toLocaleDateString()}`}
               primaryTypographyProps={{ typography: 'body2', display: 'flex', alignItems: 'center', flexWrap: 'wrap' }}
               secondaryTypographyProps={{
                 component: 'span',
@@ -133,7 +133,7 @@ export default function OrgTableRow({ row, selected, onSelectRow, agreeRow, refu
             </>
           ) : (
             <Button disabled sx={{ margin: '10px' }}>
-              {row.status === 'agreed' ? '已同意' : '已拒绝'}
+              {row.status === 'agreed' ? 'Agreed' : 'Refused'}
             </Button>
           )}
         </TableCell>
@@ -146,7 +146,6 @@ export default function OrgTableRow({ row, selected, onSelectRow, agreeRow, refu
 OrgTableRow.propTypes = {
   row: PropTypes.object.isRequired,
   selected: PropTypes.bool,
-  onSelectRow: PropTypes.func.isRequired,
   agreeRow: PropTypes.func.isRequired,
   refuseRow: PropTypes.func.isRequired,
   isOnline: PropTypes.bool.isRequired,
