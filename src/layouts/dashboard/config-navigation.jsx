@@ -46,6 +46,13 @@ export function useNavData() {
               { title: t('list'), path: paths.tour.root },
             ],
           },
+
+          // MONITOR
+          {
+            title: t('monitor'),
+            path: 'http://43.136.232.116:3001/d/rYdddlPWk/node-exporter?orgId=1&refresh=1m&from=now-15m&to=now',
+            icon: <Iconify icon='solar:monitor-camera-bold' />,
+          }
         ],
       },
 

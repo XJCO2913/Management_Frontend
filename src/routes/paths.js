@@ -27,6 +27,8 @@ export const paths = {
     root: `/tour/list`,
     details: (id) => `/tour/${id}`,
   },
+
+  monitor: 'http://43.136.232.116:3001/d/rYdddlPWk/node-exporter?orgId=1&refresh=1m&from=now-15m&to=now',
   
   comingSoon: '/coming-soon',
   maintenance: '/maintenance',
