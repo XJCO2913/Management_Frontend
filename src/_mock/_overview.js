@@ -1,4 +1,8 @@
 import { _mock } from './_mock';
+import postImage1 from './image/post 1.jpg';
+import postImage2 from './image/post 2.jpg';
+import postImage3 from './image/post 3.jpg';
+
 
 // APP
 // ----------------------------------------------------------------------
@@ -60,12 +64,12 @@ export const _appInvoices = [...Array(5)].map((_, index) => {
   };
 });
 
-export const _appFeatured = [...Array(3)].map((_, index) => ({
-  id: _mock.id(index),
-  title: _mock.postTitle(index),
-  description: _mock.sentence(index),
-  coverUrl: _mock.image.cover(index),
-}));
+
+export const _appFeatured = [
+  { id: '1', title: 'Activities', description: 'Choose an activity you like and join it', coverUrl: postImage1 },
+  { id: '2', title: 'Dashboard', description: 'User interface for dashboard of the application', coverUrl: postImage2 },
+  { id: '3', title: 'Membership', description: 'Subscribe to different levels of service', coverUrl: postImage3 }
+];
 
 // ANALYTIC
 // ----------------------------------------------------------------------
