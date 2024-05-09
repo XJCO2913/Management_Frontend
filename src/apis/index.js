@@ -61,5 +61,6 @@ export const endpoints = {
     all: `/org`,
     agree: (userId) => `/org/agree?userId=${userId}`,
     refuse: (userId) => `/org/refuse?userId=${userId}`,
+    notify: '/notify/org'
   }
 };

@@ -154,11 +154,24 @@ export default function OrgListView() {
     }
   };
 
+  const sendOrgResult = async (isAgreed, receiverId) => {
+    try {
+      const resp = await apiInstance.post(endpoints.organize.notify, JSON.stringify({
+        receiverId: receiverId,
+        isAgreed: isAgreed,
+      }))
+      console.log(resp)
+    } catch(err) {
+      enqueueSnackbar(err, { variant: 'error' });
+    }
+  }
+
   const agreeUser = useCallback(async (userId) => {
     try {
       const response = await agreeById(userId);
       if (response.status_code === 0) {
         enqueueSnackbar('User agreed successfully!', { variant: 'success' });
+        sendOrgResult(true, userId)
       }
     } catch (error) {
       const errorMessage = error.message || 'Error agree application';
@@ -171,6 +184,7 @@ export default function OrgListView() {
       const response = await refuseById(userId);
       if (response.status_code === 0) {
         enqueueSnackbar('User refuseed successfully!', { variant: 'success' });
+        sendOrgResult(false, userId)
       }
     } catch (error) {
       const errorMessage = error.message || 'Error refuse application';
