@@ -393,7 +393,23 @@ export default function UserListView() {
   const [currentTab, setCurrentTab] = useState('all');
 
   const filteredData = useMemo(() => {
-    let dataByStatus = userData;
+    let dataByStatus = userData.sort((a, b) => {
+      const aOnline = onlineUsers.includes(a.userId)
+      const bOnline = onlineUsers.includes(b.userId)
+
+      // 如果 a 在线而 b 不在线，将 a 排在前面
+      if (aOnline && !bOnline) {
+        return -1;
+      }
+      // 如果 b 在线而 a 不在线，将 b 排在前面
+      else if (!aOnline && bOnline) {
+        return 1;
+      }
+      // 否则保持原顺序
+      else {
+        return 0;
+      }
+    });
     switch (currentTab) {
       case 'banned':
         dataByStatus = userData.filter(user => user.isBanned);
@@ -413,7 +429,7 @@ export default function UserListView() {
     });
   
     return dataByFilters;
-  }, [currentTab, userData, filters]);
+  }, [currentTab, userData, filters, onlineUsers]);
    
   const handleTabChange = (event, newValue) => {
     setCurrentTab(newValue);
