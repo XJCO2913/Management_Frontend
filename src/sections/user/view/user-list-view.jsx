@@ -305,12 +305,24 @@ export default function UserListView() {
   };
   
   const handleWsMessage = (e)=>{
+    if (e.data === "HEARTBEAT") {
+      return
+    }
+
     if (JSON.parse(e.data).Type === "new_online") {
-      console.log("new!!!")
+      console.log("new_online")
       enqueueSnackbar("New user coming online")
       setOnlineUsers(pre => [...pre, JSON.parse(e.data).userID])
       return
     }
+
+    if (JSON.parse(e.data).Type === "new_offline") {
+      console.log("new_offline")
+      enqueueSnackbar("A user logs out", { variant: "error" })
+      setOnlineUsers(pre => pre.filter(onlineId => onlineId !== JSON.parse(e.data).userID))
+      return
+    }
+
     console.log('old!!!!')
     console.log('woccccccc!!!!::::'+JSON.parse(e.data).Type)
     setOnlineUsers(JSON.parse(e.data).onlineUsers)
@@ -348,6 +360,8 @@ export default function UserListView() {
       SenderID: "64691a68-cd4c-11ee-bd80-02be5496381c",
     }
     wsManager.send(JSON.stringify(msg))
+
+    wsManager.changeOnMessage(handleWsMessage)
   }, [enqueueSnackbar]);
  
   const handleBatchDelete = async () => {
